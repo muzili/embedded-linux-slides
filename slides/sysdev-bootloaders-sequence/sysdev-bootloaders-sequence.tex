@@ -17,7 +17,7 @@
     \stopitemize
   \stopitemize
 
-  \SlideTitle{Bootloaders on x86 (1)}
+  \SlideTitle{Bootloaders on x86}
     \placefigure[right,none]{}{\externalfigure[slides/sysdev-bootloaders-sequence/x86-bootloader-sequence.pdf][width=0.2\textwidth,height=0.9\textheight]}
     \startitemize
     \item The x86 processors are typically bundled on a board with a
@@ -34,21 +34,8 @@
     \item The bootloader can then offer all its features. It typically
       understands filesystem formats so that the kernel file can be
       loaded directly from a normal filesystem.
-    \stopitemize
-
-  \SlideTitle{Bootloaders on x86 (2)}
-  \startitemize
   \item GRUB, Grand Unified Bootloader, the most powerful one.\\
     \hyphenatedurl{http://www.gnu.org/software/grub/}
-    \startitemize
-    \item Can read many filesystem formats to load the kernel image
-      and the configuration, provides a powerful shell with various
-      commands, can load kernel images over the network, etc.
-    \item See our dedicated presentation for details:\\
-      \hyphenatedurl{http://free-electrons.com/docs/grub/}
-    \stopitemize
-  \item Syslinux, for network and removable media booting (USB key, CD-ROM)\\
-    \hyphenatedurl{http://www.kernel.org/pub/linux/utils/boot/syslinux/}
   \stopitemize
 
   \SlideTitle{Booting on embedded CPUs: case 1}

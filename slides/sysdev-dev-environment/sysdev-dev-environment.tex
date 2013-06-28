@@ -140,15 +140,33 @@
   \item An essential tool for embedded development is a serial line
     communication program, like HyperTerminal in Windows.
   \item There are multiple options available in Linux: Minicom,
-    Picocom, Gtkterm, Putty, etc.
-  \item In this training session, we recommend using the simplest of
-    them: \type{picocom}
+    Kermit, Picocom, Gtkterm, Putty, etc.
+  \item I recommend \type{kermit}
     \startitemize
-    \item Installation with \type{sudo apt-get install picocom}
-    \item Run with \type{picocom -b BAUD_RATE /dev/SERIAL_DEVICE}
-    \item Exit with \type{Control-A Control-X}
+    \item Installation with \type{sudo apt-get install ckermit}
+    \item Create the kermit init script \type{~/bin/usb0term}
+\starttyping
+#!/usr/bin/kermit
+echo connecting /dev/ttyUSB0 .....
+set line /dev/ttyUSB0
+set modem type none   ; There is no modem
+set speed 115200       ; Or other desired speed
+set carrier-watch off
+set prefixing all
+set parity none
+set stop-bits 1
+set serial 8n1
+set modem none
+set file type bin
+set file name lit
+set flow-control none
+set prompt "Linux Kermit> "
+connect
+\stoptyping
+    \item Run with \type{usb0term}
+    \item Exit with \type{Control-\ c} and \type{exit}
     \stopitemize
-  \item \type{SERIAL_DEVICE} is typically
+  \item \type{serial device} is typically
     \startitemize
     \item \type{ttyUSBx} for USB to serial converters
     \item \type{ttySx} for real serial ports
