@@ -1,0 +1,83 @@
+  \SlideTitle{Kernel compilation}
+  \startitemize
+  \item \type{make}
+    \startitemize
+    \item in the main kernel source directory
+    \item Remember to run \type{make -j 4} if you have multiple CPU
+      cores to speed up the compilation process
+    \item No need to run as root!
+    \stopitemize
+  \item Generates
+    \startitemize
+    \item \type{vmlinux}, the raw uncompressed kernel image, at the
+      ELF format, useful for debugging purposes, but cannot be booted
+    \item \type{arch/<arch>/boot/*Image}, the final, usually
+      compressed, kernel image that can be booted
+      \startitemize
+      \item \type{bzImage} for x86, \type{zImage} for ARM,
+        \type{vmImage.gz} for Blackfin, etc.
+      \stopitemize
+    \item All kernel modules, spread over the kernel source tree, as
+      \type{.ko} files.
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Kernel installation}
+  \startitemize
+  \item \type{make install}
+    \startitemize
+    \item Does the installation for the host system by default, so
+      needs to be run as root. Generally not used when compiling for
+      an embedded system, and it installs files on the development
+      workstation.
+    \stopitemize
+  \item Installs
+    \startitemize
+    \item \type{/boot/vmlinuz-<version>} \\
+      Compressed kernel image. Same as the one in
+      \type{arch/<arch>/boot}
+    \item \type{/boot/System.map-<version>}\\
+      Stores kernel symbol addresses
+    \item \type{/boot/config-<version>}\\
+      Kernel configuration for this version
+    \stopitemize
+  \item Typically re-runs the bootloader configuration utility to take
+    the new kernel into account.
+  \stopitemize
+
+  \SlideTitle{Module installation}
+  \startitemize
+  \item \type{make modules_install}
+    \startitemize
+    \item Does the installation for the host system by default, so
+      needs to be run as root
+    \stopitemize
+  \item Installs all modules in \type{/lib/modules/<version>/}
+    \startitemize
+    \item \type{kernel/}\\
+      Module \type{.ko} (Kernel Object) files, in the same directory
+      structure as in the sources.
+    \item \type{modules.alias}\\
+      Module aliases for module loading utilities. Example line:\\
+      \type{alias sound-service-?-0 snd_mixer_oss}
+    \item \type{modules.dep}\\
+      Module dependencies
+    \item \type{modules.symbols}\\
+      Tells which module a given symbol belongs to.
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Kernel cleanup targets}
+    \placefigure[right,none]{}{
+    \externalfigure[slides/sysdev-linux-intro-compilation/kernel-mrproper.png][width=0.2\textwidth]}
+    \startitemize
+    \item Clean-up generated files (to force re-compilation):\\
+      \type{make clean}
+    \item Remove all generated files. Needed when switching from one
+      architecture to another. Caution: it also removes your \type{.config} file!\\
+      \type{make mrproper}
+    \item Also remove editor backup and patch reject files (mainly to
+      generate patches):\\
+      \type{make distclean}
+    \stopitemize
+

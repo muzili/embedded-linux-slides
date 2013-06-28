@@ -1,0 +1,172 @@
+  \SlideTitle{Bootloaders}
+  \startitemize
+  \item The bootloader is a piece of code responsible for
+    \startitemize
+    \item Basic hardware initialization
+    \item Loading of an application binary, usually an operating
+      system kernel, from flash storage, from the network, or from
+      another type of non-volatile storage.
+    \item Possibly decompression of the application binary
+    \item Execution of the application
+    \stopitemize
+  \item Besides these basic functions, most bootloaders provide a
+    shell with various commands implementing different operations.
+    \startitemize
+    \item Loading of data from storage or network, memory inspection,
+      hardware diagnostics and testing, etc.
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Bootloaders on x86 (1)}
+    \placefigure[right,none]{}{\externalfigure[slides/sysdev-bootloaders-sequence/x86-bootloader-sequence.pdf][width=0.2\textwidth,height=0.9\textheight]}
+    \startitemize
+    \item The x86 processors are typically bundled on a board with a
+      non-volatile memory containing a program, the BIOS.
+    \item This program gets executed by the CPU after reset, and is
+      responsible for basic hardware initialization and loading of a
+      small piece of code from non-volatile storage.
+      \startitemize
+      \item This piece of code is usually the first 512 bytes of a
+        storage device
+      \stopitemize
+    \item This piece of code is usually a 1st stage bootloader, which
+      will load the full bootloader itself.
+    \item The bootloader can then offer all its features. It typically
+      understands filesystem formats so that the kernel file can be
+      loaded directly from a normal filesystem.
+    \stopitemize
+
+  \SlideTitle{Bootloaders on x86 (2)}
+  \startitemize
+  \item GRUB, Grand Unified Bootloader, the most powerful one.\\
+    \hyphenatedurl{http://www.gnu.org/software/grub/}
+    \startitemize
+    \item Can read many filesystem formats to load the kernel image
+      and the configuration, provides a powerful shell with various
+      commands, can load kernel images over the network, etc.
+    \item See our dedicated presentation for details:\\
+      \hyphenatedurl{http://free-electrons.com/docs/grub/}
+    \stopitemize
+  \item Syslinux, for network and removable media booting (USB key, CD-ROM)\\
+    \hyphenatedurl{http://www.kernel.org/pub/linux/utils/boot/syslinux/}
+  \stopitemize
+
+  \SlideTitle{Booting on embedded CPUs: case 1}
+    \placefigure[right,none]{}{\externalfigure[slides/sysdev-bootloaders-sequence/booting-from-nor.pdf][width=0.2\textwidth]}
+    \startitemize
+    \item When powered, the CPU starts executing code at a fixed address
+    \item There is no other booting mechanism provided by the CPU
+    \item The hardware design must ensure that a NOR flash chip is
+      wired so that it is accessible at the address at which the CPU
+      starts executing instructions
+    \item The first stage bootloader must be programmed at this
+      address in the NOR
+    \item NOR is mandatory, because it allows random access, which
+      NAND doesn't allow
+    \item {\bf Not very common anymore} (unpractical, and requires NOR
+      flash)
+    \stopitemize
+
+  \SlideTitle{Booting on embedded CPUs: case 2}
+  \startitemize
+  \item The CPU has an integrated boot code in ROM
+    \startitemize
+    \item BootROM on AT91 CPUs, “ROM code” on OMAP, etc.
+    \item Exact details are CPU-dependent
+    \stopitemize
+  \item This boot code is able to load a first stage bootloader from a
+    storage device into an internal SRAM (DRAM not initialized yet)
+    \startitemize
+    \item Storage device can typically be: MMC, NAND, SPI flash, UART,
+      etc.
+    \stopitemize
+  \item The first stage bootloader is
+    \startitemize
+    \item Limited in size due to hardware constraints (SRAM size)
+    \item Provided either by the CPU vendor or through community projects
+    \stopitemize
+  \item This first stage bootloader must initialize DRAM and other
+    hardware devices and load a second stage bootloader into RAM
+  \stopitemize
+
+  \SlideTitle{Booting on ARM Atmel AT91}
+  \placefigure[left,none]{}{
+    \externalfigure[slides/sysdev-bootloaders-sequence/at91-boot.pdf][width=0.3\textwidth,height=0.9\textheight]
+    }
+     \startitemize
+    \item {\bf RomBoot}: tries to find a valid bootstrap image from
+      various storage sources, and load it into SRAM (DRAM not
+      initialized yet). Size limited to 4 KB. No user interaction
+      possible in standard boot mode.
+    \item {\bf AT91Bootstrap}: runs from SRAM. Initializes the DRAM,
+      the NAND or SPI controller, and loads the secondary bootloader
+      into RAM and starts it. No user interaction possible.
+    \item {\bf U-Boot}: runs from RAM. Initializes some other hardware
+      devices (network, USB, etc.).  Loads the kernel image from
+      storage or network to RAM and starts it. Shell with commands
+      provided.
+    \item {\bf Linux Kernel}: runs from RAM. Takes over the system
+      completely (bootloaders no longer exists).
+    \stopitemize
+
+\SlideTitle{Booting on ARM OMAP3}
+  \placefigure[left,none]{}{
+    \externalfigure[slides/sysdev-bootloaders-sequence/omap-boot.pdf][width=0.3\textwidth, height=0.9\textheight]
+    }
+    \startitemize
+    \item {\bf ROM Code}: \tfx tries to find a valid bootstrap image from
+      various storage sources, and load it into SRAM or RAM (RAM can
+      be initialized by ROM code through a configuration header). Size
+      limited to 64 KB. No user interaction possible.
+    \item {\bf X-Loader} or {\bf U-Boot}: \tfx runs from SRAM. Initializes
+      the DRAM, the NAND or MMC controller, and loads the secondary
+      bootloader into RAM and starts it. No user interaction
+      possible. File called \type{MLO}.
+    \item {\bf U-Boot}: \tfx runs from RAM. Initializes some other hardware
+      devices (network, USB, etc.).  Loads the kernel image from
+      storage or network to RAM and starts it. Shell with commands
+      provided. File called \type{u-boot.bin} or \type{u-boot.img}.
+    \item {\bf Linux Kernel}: \tfx runs from RAM. Takes over the system
+      completely (bootloaders no longer exists).
+    \stopitemize
+
+  \SlideTitle{Booting on Marvell SoC}
+  \placefigure[left,none]{}{
+    \externalfigure[slides/sysdev-bootloaders-sequence/marvell-boot.pdf][width=0.3\textwidth,height=0.9\textheight]
+    }
+
+    \startitemize
+    \item {\bf ROM Code}: tries to find a valid bootstrap image from
+      various storage sources, and load it into RAM. The RAM
+      configuration is described in a CPU-specific header, prepended
+      to the bootloader image.
+    \item {\bf U-Boot}: runs from RAM. Initializes some other hardware
+      devices (network, USB, etc.).  Loads the kernel image from
+      storage or network to RAM and starts it. Shell with commands
+      provided. File called \type{u-boot.kwb}.
+    \item {\bf Linux Kernel}: runs from RAM. Takes over the system
+      completely (bootloaders no longer exists).
+    \stopitemize
+
+  \SlideTitle{Generic bootloaders for embedded CPUs}
+  \startitemize
+  \item We will focus on the generic part, the main bootloader, offering
+    the most important features.
+  \item There are several open-source generic bootloaders.\\
+    Here are the most popular ones:
+    \startitemize
+    \item {\bf U-Boot}, the universal bootloader by Denx\\
+      The most used on ARM, also used on PPC, MIPS, x86, m68k, NIOS,
+      etc. The de-facto standard nowadays. We will study it in detail.\\
+      \hyphenatedurl{http://www.denx.de/wiki/U-Boot}
+    \item {\bf Barebox}, a new architecture-neutral bootloader, written
+      as a successor of U-Boot. Better design, better code, active
+      development, but doesn't yet have as much hardware support as U-Boot.\\
+      \hyphenatedurl{http://www.barebox.org}
+    \stopitemize
+  \item There are also a lot of other open-source or proprietary
+    bootloaders, often architecture-specific
+    \startitemize
+    \item RedBoot, Yaboot, PMON, etc.
+    \stopitemize
+  \stopitemize

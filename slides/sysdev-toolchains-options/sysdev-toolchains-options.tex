@@ -1,0 +1,60 @@
+  \SlideTitle{ABI}
+  \startitemize
+  \item When building a toolchain, the ABI used to generate binaries
+    needs to be defined
+  \item ABI, for {\em Application Binary Interface}, defines the
+    calling conventions (how function arguments are passed, how the
+    return value is passed, how system calls are made) and the
+    organization of structures (alignment, etc.)
+  \item All binaries in a system must be compiled with the same ABI,
+    and the kernel must understand this ABI.
+  \item On ARM, two main ABIs: {\em OABI} and {\em EABI}
+    \startitemize
+    \item Nowadays everybody uses {\em EABI}
+    \stopitemize
+  \item On MIPS, several ABIs: {\em o32, o64, n32, n64}
+  \item \hyphenatedurl{http://en.wikipedia.org/wiki/Application_Binary_Interface}
+  \stopitemize
+
+  \SlideTitle{Floating point support}
+  \startitemize
+  \item Some processors have a floating point unit, some others do not.
+    \startitemize
+    \item For example, many ARMv4 and ARMv5 CPUs do not have a
+      floating point unit.  Since ARMv7, a VFP unit is mandatory.
+    \stopitemize
+  \item For processors having a floating point unit, the toolchain
+    should generate {\em hard float} code, in order to use the
+    floating point instructions directly
+  \item For processors without a floating point unit, two solutions
+    \startitemize
+    \item Generate {\em hard float code} and rely on the kernel to
+      emulate the floating point instructions. This is very slow.
+    \item Generate {\em soft float code}, so that instead of
+      generating floating point instructions, calls to a userspace
+      library are generated
+    \stopitemize
+  \item Decision taken at toolchain configuration time
+  \item Also possible to configure which floating point unit should be used
+  \stopitemize
+
+  \SlideTitle{CPU optimization flags}
+  \startitemize
+  \item A set of cross-compiling tools is specific to a CPU architecture (ARM,
+    x86, MIPS, PowerPC)
+  \item However, with the \type{-march=}, \type{-mcpu=},
+    \type{-mtune=} options, one can select more precisely the
+    target CPU type
+    \startitemize
+    \item For example, \type{-march=armv7 -mcpu=cortex-a8}
+    \stopitemize
+  \item At the toolchain compilation time, values can be chosen. They are used:
+    \startitemize
+    \item As the default values for the cross-compiling tools, when no
+      other \type{-march}, \type{-mcpu}, \type{-mtune} options are
+      passed
+    \item To compile the C library
+    \stopitemize
+  \item Even if the C library has been compiled for armv5t, it doesn't
+    prevent from compiling other programs for armv7
+  \stopitemize

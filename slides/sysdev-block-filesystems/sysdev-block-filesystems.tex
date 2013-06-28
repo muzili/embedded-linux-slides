@@ -1,0 +1,204 @@
+
+  \SlideTitle{Block vs. flash}
+  \startitemize
+  \item Storage devices are classified in two main types: {\bf block
+      devices} and {\bf flash devices}
+    \startitemize
+    \item They are handled by different subsystems and different
+      filesystems
+    \stopitemize
+  \item {\bf Block devices} can be read and written to on a per-block
+    basis, without erasing, and do not wear out when being used for a
+    long time
+    \startitemize
+    \item Hard disks, floppy disks, RAM disks
+    \item USB keys, Compact Flash, SD card, these are based on
+      flash storage, but have an integrated controller that emulates a block
+      device
+    \stopitemize
+  \item {\bf Flash devices} can be read, but writing requires erasing,
+    and often occurs on a larger size than the “block” size
+    \startitemize
+    \item NOR flash, NAND flash
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Block device list}
+  \startitemize
+  \item The list of all block devices available in the system can be
+    found in \type{/proc/partitions}\\
+\starttyping
+$ cat /proc/partitions
+major minor #blocks name
+
+ 179        0    3866624 mmcblk0
+ 179        1      73712 mmcblk0p1
+ 179        2    3792896 mmcblk0p2
+   8        0  976762584 sda
+   8        1    1060258 sda1
+   8        2  975699742 sda2
+\stoptyping
+  \item And also in \type{/sys/block/}
+  \stopitemize
+
+  \SlideTitle{Traditional block filesystems}
+  Traditional filesystems
+  \startitemize
+  \item Can be left in a non-coherent state after a system crash or
+    sudden poweroff, which requires a full filesystem check after
+    reboot.
+  \item \type{ext2}: traditional Linux filesystem\\
+    (repair it with \type{fsck.ext2})
+  \item \type{vfat}: traditional Windows filesystem\\
+    (repair it with \type{fsck.vfat} on GNU/Linux or Scandisk on
+    Windows)
+  \stopitemize
+
+  \SlideTitle{Journaled filesystems}
+    \placefigure[right,none]{}{\externalfigure[slides/sysdev-block-filesystems/journal.pdf][width=0.5\textwidth]}
+    \startitemize
+    \item Designed to stay in a correct state even after system crashes
+      or a sudden poweroff
+    \item All writes are first described in the journal before being
+      committed to files
+    \stopitemize
+
+
+  \SlideTitle{Filesystem recovery after crashes}
+    \placefigure[left,none]{}{\externalfigure[slides/sysdev-block-filesystems/journal-recovery.pdf][width=0.5\textwidth]}
+    \startitemize
+    \item Thanks to the journal, the filesystem is never left in a
+      corrupted state
+    \item Recently saved data could still be lost
+    \stopitemize
+
+  \SlideTitle{Journaled block filesystems}
+  Journaled filesystems
+  \startitemize
+  \item \type{ext3}: \type{ext2} with journal extension\\
+    \type{ext4}: the new generation with many improvements.\\
+    Ready for production. They are the default filesystems for all
+    Linux systems in the world.
+  \item The Linux kernel supports many other filesystems:
+    \type{reiserFS}, \type{JFS}, \type{XFS}, etc.  Each of them have
+    their own characteristics, but are more oriented towards server or
+    scientific workloads
+  \item \type{Btrfs} (``Butter FS'')\\
+    The next generation. In mainline but still experimental.
+  \stopitemize
+  We recommend \type{ext2} for very small partitions ($<$ 5 MB),
+  because other filesystems need too much space for metadata
+  (\type{ext3} and \type{ext4} need about 1 MB for a 4 MB partition). 
+
+  \SlideTitle{Creating ext2/ext3/ext4 volumes}
+  \startitemize
+  \item To create an empty ext2/ext3/ext4 filesystem on a block device or
+    inside an already-existing image file
+    \startitemize
+    \item \type{mkfs.ext2 /dev/hda3}
+    \item \type{mkfs.ext3 /dev/sda2}
+    \item \type{mkfs.ext4 /dev/sda3}
+    \item \type{mkfs.ext2 disk.img}
+    \stopitemize
+  \item To create a filesystem image from a directory containing all
+    your files and directories
+    \startitemize
+    \item Use the \type{genext2fs} tool, from the package of the same name
+    \item \type{genext2fs -d rootfs/ rootfs.img}
+    \item Your image is then ready to be transferred to your block
+      device
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Mounting filesystem images}
+  \startitemize
+  \item Once a filesystem image has been created, one can access and
+    modifies its contents from the development workstation, using the
+    {\bf loop} mechanism
+  \item Example:\\
+    \type{genext2fs -d rootfs/ rootfs.img}\\
+    \type{mkdir /tmp/tst}\\
+    \type{mount -t ext2 -o loop rootfs.img /tmp/tst}
+  \item In the \type{/tmp/tst} directory, one can access and modify
+    the contents of the \type{rootfs.img} file.
+  \item This is possible thanks to \type{loop}, which is a kernel
+    driver that emulates a block device with the contents of a file.
+  \item Do not forget to run \type{umount} before using the filesystem
+    image!
+  \stopitemize
+
+  \SlideTitle{Squashfs}
+  Squashfs: \hyphenatedurl{http://squashfs.sourceforge.net}
+  \startitemize
+  \item Read-only, compressed filesystem for block devices. Fine for
+    parts of a filesystem which can be read-only (kernel, binaries...)
+  \item Great compression rate and read access performance
+  \item Used in most live CDs and live USB distributions
+  \item Supports LZO compression for better performance on embedded
+    systems with slow CPUs (at the expense of a slightly degraded
+    compression rate)
+  \item Now supports XZ encryption, for a much better compression rate,
+        at the expense of higher CPU usage and time.
+  \stopitemize
+  Benchmarks: (roughly 3 times smaller than ext3, and 2-4 times faster)\\
+  \hyphenatedurl{http://elinux.org/Squash_Fs_Comparisons}
+
+  \SlideTitle{Squashfs - How to use}
+  \startitemize
+  \item Need to install the \type{squashfs-tools} package
+  \item Creation of the image
+    \startitemize
+    \item On your workstation, create your filesystem image:\\
+      \type{mksquashfs rootfs/ rootfs.sqfs}
+    \item Caution: if the image already exists remove it first,\\
+      or use the \type{-noappend} option.
+    \stopitemize
+  \item Installation of the image
+    \startitemize
+    \item Let's assume your partition on the target is in
+      \type{/dev/sdc1}
+    \item Copy the filesystem image on the device\\
+      \type{dd if=rootfs.sqfs of=/dev/sdc1}\\
+      Be careful when using \type{dd} to not overwrite the incorrect
+      partition!
+    \stopitemize
+  \item Mount your filesystem:\\
+    \type{mount -t squashfs /dev/sdc1 /mnt/root}
+  \stopitemize
+
+  \SlideTitle{tmpfs}
+
+  Not a block filesystem of course!
+
+  Perfect to store temporary data in RAM: system log files, connection
+  data, temporary files...
+
+  \startitemize
+  \item \type{tmpfs} configuration: \type{File systems -> Pseudo filesystems}\\
+    Lives in the Linux file cache. Doesn't waste RAM: unlike ramdisks, no need
+    to copy files to the file cache, grows and shrinks to accommodate stored files.
+    Saves RAM: can swap out pages to disk when needed.
+  \item How to use: choose a name to distinguish the various tmpfs
+    instances you could have. Examples:\\
+    \type{mount -t tmpfs varrun /var/run}\\
+    \type{mount -t tmpfs udev /dev}
+  \stopitemize
+  See \type{filesystems/tmpfs.txt} in kernel sources.
+
+  \SlideTitle{Mixing read-only and read-write filesystems}
+    Good idea to split your block storage into:
+    \placefigure[right,none]{}{
+    \externalfigure[slides/sysdev-block-filesystems/mixing-filesystems.pdf][width=0.3\textwidth]}
+    \startitemize
+    \item A compressed read-only partition (\type{Squashfs})\\
+      Typically used for the root filesystem (binaries, kernel...).\\
+      Compression saves space. Read-only access protects your system
+      from mistakes and data corruption.
+    \item A read-write partition with a journaled filesystem (like \type{ext3})\\
+      Used to store user or configuration data.\\
+      Guarantees filesystem integrity after power off or crashes.
+    \item Ram storage for temporary files (\type{tmpfs})
+    \stopitemize
+
+
+

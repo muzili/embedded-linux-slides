@@ -1,0 +1,146 @@
+  \SlideTitle{Definition (1)}
+  \startitemize
+  \item The usual development tools available on a GNU/Linux
+    workstation is a {\bf native toolchain}
+  \item This toolchain runs on your workstation and generates code for
+    your workstation, usually x86
+  \item For embedded system development, it is usually impossible or not
+    interesting to use a native toolchain
+    \startitemize
+    \item The target is too restricted in terms of storage and/or memory
+    \item The target is very slow compared to your workstation
+    \item You may not want to install all development tools on your target.
+    \stopitemize
+  \item Therefore, {\bf cross-compiling toolchains} are generally
+    used. They run on your workstation but generate code for your
+    target.
+  \stopitemize
+
+  \IncludePicture[horizontal][slides/sysdev-toolchains-definition/cross-toolchain.pdf]{Definition (2)}
+
+  \SlideTitle{Machines in build procedures}
+  \startitemize
+  \item Three machines must be distinguished when discussing toolchain creation
+    \startitemize
+    \item The {\bf build} machine, where the toolchain is built.
+    \item The {\bf host} machine, where the toolchain will be executed.
+    \item The {\bf target} machine, where the binaries created by the
+      toolchain are executed.
+    \stopitemize
+  \item Four common build types are possible for toolchains
+  \stopitemize
+
+  \IncludePicture[horizontal][slides/sysdev-toolchains-definition/toolchain-build-types.pdf]{Different toolchain build procedures}
+
+  \IncludePicture[horizontal][slides/sysdev-toolchains-definition/components.pdf]{Components}
+
+  \SlideTitle{Binutils}
+  \startitemize
+  \item {\bf Binutils} is a set of tools to generate and manipulate
+    binaries for a given CPU architecture
+    \startitemize
+    \item \type{as}, the assembler, that generates binary code from
+      assembler source code
+    \item \type{ld}, the linker
+    \item \type{ar}, \type{ranlib}, to generate \type{.a} archives,
+      used for libraries
+    \item \type{objdump}, \type{readelf}, \type{size}, \type{nm},
+      \type{strings}, to inspect binaries. Very useful analysis tools!
+    \item \type{strip}, to strip useless parts of binaries in order to
+      reduce their size
+    \stopitemize
+  \item \hyphenatedurl{http://www.gnu.org/software/binutils/}
+  \item GPL license
+  \stopitemize
+
+  \SlideTitle{Kernel headers (1)}
+    \placefigure[right,none]{}{
+    \externalfigure[slides/sysdev-toolchains-definition/kernel-headers.pdf][width=0.2\textwidth]
+    }
+    \startitemize
+    \item The C library and compiled programs needs to interact with the kernel
+      \startitemize
+      \item Available system calls and their numbers
+      \item Constant definitions
+      \item Data structures, etc.
+      \stopitemize
+    \item Therefore, compiling the C library requires kernel headers, and many
+      applications also require them.
+    \item Available in \type{<linux/...>} and \type{<asm/...>} and a few
+      other directories corresponding to the ones visible in
+      \type{include/} in the kernel sources
+    \stopitemize
+
+  \SlideTitle{Kernel headers (2)}
+  \startitemize
+  \item System call numbers, in \type{<asm/unistd.h>}
+\starttyping
+#define __NR_exit         1
+#define __NR_fork         2
+#define __NR_read         3
+\stoptyping
+  \item Constant definitions, here in \type{<asm-generic/fcntl.h>},
+    included from \type{<asm/fcntl.h>}, included from
+    \type{<linux/fcntl.h>}
+\starttyping
+#define O_RDWR 00000002
+\stoptyping
+\item Data structures, here in \type{<asm/stat.h>}
+\starttyping
+struct stat {
+    unsigned long st_dev;
+    unsigned long st_ino;
+    [...]
+};
+\stoptyping
+\stopitemize
+
+  \SlideTitle{Kernel headers (3)}
+  \startitemize
+  \item The kernel-to-userspace ABI is {\bf backward compatible}
+    \startitemize
+    \item Binaries generated with a toolchain using kernel headers
+      older than the running kernel will work without problem, but
+      won't be able to use the new system calls, data structures, etc.
+    \item Binaries generated with a toolchain using kernel headers
+      newer than the running kernel might work on if they don't use
+      the recent features, otherwise they will break
+    \item Using the latest kernel headers is not necessary, unless
+      access to the new kernel features is needed
+    \stopitemize
+  \item The kernel headers are extracted from the kernel sources using
+    the \type{headers_install} kernel Makefile target.
+  \stopitemize
+
+  \SlideTitle{GCC}
+  \placefigure[right,none]{}{
+  \externalfigure[slides/sysdev-toolchains-definition/gcc.png]
+  }
+    \startitemize
+    \item GNU Compiler Collection, the famous free software compiler
+    \item Can compile C, C++, Ada, Fortran, Java, Objective-C,
+      Objective-C++, and generate code for a large number of CPU
+      architectures, including ARM, AVR, Blackfin, CRIS, FRV, M32, MIPS,
+      MN10300, PowerPC, SH, v850, i386, x86\_64, IA64, Xtensa, etc.
+    \item \hyphenatedurl{http://gcc.gnu.org/}
+    \item Available under the GPL license, libraries under the LGPL.
+    \stopitemize
+
+  \SlideTitle{C library}
+    \placefigure[right,none]{}{
+        \externalfigure[slides/sysdev-toolchains-definition/c-library.pdf][width=0.2\textwidth]
+    }
+    \startitemize
+    \item The C library is an essential component of a Linux system
+      \startitemize
+      \item Interface between the applications and the kernel
+      \item Provides the well-known standard C API to ease application
+        development
+      \stopitemize
+    \item Several C libraries are available:\\
+      {\em glibc}, {\em uClibc}, {\em eglibc}, {\em dietlibc}, {\em
+        newlib}, etc.
+    \item The choice of the C library must be made at the time of the
+      cross-compiling toolchain generation, as the GCC compiler is
+      compiled against a specific C library.
+    \stopitemize

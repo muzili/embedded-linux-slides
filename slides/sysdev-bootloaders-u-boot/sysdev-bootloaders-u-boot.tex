@@ -1,0 +1,339 @@
+
+  \SlideTitle{U-Boot}
+  U-Boot is a typical free software project
+  \startitemize
+  \item License: GPLv2 (same as Linux)
+  \item Freely available at \hyphenatedurl{http://www.denx.de/wiki/U-Boot}
+  \item Documentation available at
+    \hyphenatedurl{http://www.denx.de/wiki/U-Boot/Documentation}
+  \item The latest development source code is available in a Git
+    repository:
+    \hyphenatedurl{http://git.denx.de/?p=u-boot.git;a=summary}
+  \item Development and discussions happen around an open mailing-list
+    \hyphenatedurl{http://lists.denx.de/pipermail/u-boot/}
+  \item Since the end of 2008, it follows a fixed-interval release
+    schedule. Every two months, a new version is released. Versions
+    are named \type{YYYY.MM}.
+\stopitemize
+
+  \SlideTitle{U-Boot configuration}
+  \startitemize
+  \item Get the source code from the website, and uncompress it
+  \item The \type{include/configs/} directory contains one
+    configuration file for each supported board
+    \startitemize
+    \item It defines the CPU type, the peripherals and their configuration, the
+      memory mapping, the U-Boot features that should be compiled in, etc.
+    \item It is a simple \type{.h} file that sets C pre-processor
+      constants. See the \type{README} file for the documentation of
+      these constants. This file can also be adjusted to add or remove
+      features from U-Boot (commands, etc.).
+    \stopitemize
+  \item Assuming that your board is already supported by U-Boot, there
+    should be one entry corresponding to your board in the
+    \type{boards.cfg} file.
+  \stopitemize
+
+  \SlideTitle{U-Boot configuration file excerpt}
+\starttyping
+/* CPU configuration */
+#define CONFIG_ARMV7 1
+#define CONFIG_OMAP 1
+#define CONFIG_OMAP34XX 1
+#define CONFIG_OMAP3430 1
+#define CONFIG_OMAP3_IGEP0020 1
+[...]
+/* Memory configuration */
+#define CONFIG_NR_DRAM_BANKS 2
+#define PHYS_SDRAM_1 OMAP34XX_SDRC_CS0
+#define PHYS_SDRAM_1_SIZE (32 <<  20)
+#define PHYS_SDRAM_2 OMAP34XX_SDRC_CS1
+[...]
+/* USB configuration */
+#define CONFIG_MUSB_UDC 1
+#define CONFIG_USB_OMAP3 1
+#define CONFIG_TWL4030_USB 1
+[...]
+\stoptyping
+
+\starttyping
+/* Available commands and features */
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_MMC
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_MTDPARTS
+[...]
+\stoptyping
+
+  \SlideTitle{Configuring and compiling U-Boot}
+  \startitemize
+  \item U-Boot must be configured before being compiled
+    \startitemize
+    \item \type{make BOARDNAME_config}
+    \item Where \type{BOARDNAME} is the name of the board, as visible
+      in the \type{boards.cfg} file (first column).
+    \stopitemize
+  \item Make sure that the cross-compiler is available in \type{PATH}
+  \item Compile U-Boot, by specifying the cross-compiler prefix.\\
+    Example, if your cross-compiler executable is \type{arm-linux-gcc}:\\
+    \type{make CROSS_COMPILE=arm-linux-}
+  \item The main result is a \type{u-boot.bin} file, which is the
+    U-Boot image. Depending on your specific platform, there may be
+    other specialized images: \type{u-boot.img}, \type{u-boot.kwb},
+    \type{MLO}, etc.
+  \stopitemize
+
+  \SlideTitle{Installing U-Boot}
+  \startitemize
+  \item U-Boot must usually be installed in flash memory to be
+    executed by the hardware. Depending on the hardware, the
+    installation of U-Boot is done in a different way:
+    \startitemize
+    \item The CPU provides some kind of specific boot monitor with
+      which you can communicate through serial port or USB using a
+      specific protocol
+    \item The CPU boots first on removable media (MMC) before booting
+      from fixed media (NAND). In this case, boot from MMC to reflash
+      a new version
+    \item U-Boot is already installed, and can be used to flash a new
+      version of U-Boot. However, be careful: if the new version of
+      U-Boot doesn't work, the board is unusable
+    \item The board provides a JTAG interface, which allows to write
+      to the flash memory remotely, without any system running on the
+      board. It also allows to rescue a board if the bootloader
+      doesn't work.
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{U-boot prompt}
+  \startitemize
+  \item Connect the target to the host through a serial console
+  \item Power-up the board. On the serial console, you will see
+    something like:
+  \stopitemize
+\starttyping
+U-Boot 2013.04 (May 29 2013 - 10:30:21)
+
+OMAP36XX/37XX-GP ES1.2, CPU-OPP2, L3-165MHz, Max CPU Clock 1 Ghz
+IGEPv2 + LPDDR/NAND
+I2C:   ready
+DRAM:  512 MiB
+NAND:  512 MiB
+MMC:   OMAP SD/MMC: 0
+
+Die ID #255000029ff800000168580212029011
+Net:   smc911x-0
+U-Boot #
+\stoptyping
+  \startitemize
+  \item The U-Boot shell offers a set of commands. We will study the
+    most important ones, see the documentation for a complete
+    reference or the \type{help} command.
+  \stopitemize
+
+  \SlideTitle{Information commands}
+  {\bf Flash information (NOR and SPI flash)}
+\starttyping
+U-Boot> flinfo
+DataFlash:AT45DB021
+Nb pages: 1024
+Page Size: 264
+Size= 270336 bytes
+Logical address: 0xC0000000
+Area 0: C0000000 to C0001FFF (RO) Bootstrap
+Area 1: C0002000 to C0003FFF Environment
+Area 2: C0004000 to C0041FFF (RO) U-Boot
+\stoptyping
+  {\bf NAND flash information}
+\starttyping
+U-Boot> nand info
+Device 0: nand0, sector size 128 KiB
+  Page size      2048 b
+  OOB size         64 b
+  Erase size   131072 b
+\stoptyping
+  {\bf Version details}
+\starttyping
+U-Boot> version
+U-Boot 2013.04 (May 29 2013 - 10:30:21)
+\stoptyping
+
+  \SlideTitle{Important commands (1)}
+  \startitemize
+  \item The exact set of commands depends on the U-Boot configuration
+  \item \type{help} and \type{help command}
+  \item \type{boot}, runs the default boot command, stored in
+    \type{bootcmd}
+  \item \type{bootm <address>} , starts a kernel image loaded at the
+    given address in RAM
+  \item \type{ext2load}, loads a file from an ext2 filesystem to RAM
+    \startitemize
+    \item And also \type{ext2ls} to list files, \type{ext2info} for
+      information
+    \stopitemize
+  \item \type{fatload}, loads a file from a FAT filesystem to RAM
+    \startitemize
+    \item And also \type{fatls} and \type{fatinfo}
+    \stopitemize
+  \item \type{tftp}, loads a file from the network to RAM
+  \item \type{ping}, to test the network
+  \stopitemize
+
+  \SlideTitle{Important commands (2)}
+  \startitemize
+  \item \type{loadb}, \type{loads}, \type{loady}, load a file from the
+    serial line to RAM
+  \item \type{usb}, to initialize and control the USB subsystem,
+    mainly used for USB storage devices such as USB keys
+  \item \type{mmc}, to initialize and control the MMC subsystem, used
+    for SD and microSD cards
+  \item \type{nand}, to erase, read and write contents to NAND flash
+  \item \type{erase}, \type{protect}, \type{cp}, to erase, modify
+    protection and write to NOR flash
+  \item \type{md}, displays memory contents. Can be useful to check the
+    contents loaded in memory, or to look at hardware registers.
+  \item \type{mm}, modifies memory contents. Can be useful to modify
+    directly hardware registers, for testing purposes.
+\stopitemize
+
+  \SlideTitle{Environment variables commands}
+  \startitemize
+  \item U-Boot can be configured through environment variables, which
+    affect the behavior of the different commands.
+  \item Environment variables are loaded from flash to RAM at U-Boot
+    startup, can be modified and saved back to flash for persistence
+  \item There is a dedicated location in flash to store U-Boot
+    environment, defined in the board configuration file
+  \item Commands to manipulate environment variables:
+    \startitemize
+    \item \type{printenv}, shows all variables
+    \item \type{printenv <variable-name>}, shows the value of one variable
+    \item \type{setenv <variable-name> <variable-value>}, changes the
+      value of a variable, only in RAM
+    \item \type{saveenv}, saves the current state of the environment to flash
+    \stopitemize
+  \stopitemize
+
+\SlideTitle{Environment variables commands (2)}
+\starttyping
+u-boot # printenv
+baudrate=19200
+ethaddr=00:40:95:36:35:33
+netmask=255.255.255.0
+ipaddr=10.0.0.11
+serverip=10.0.0.1
+stdin=serial
+stdout=serial
+stderr=serial
+u-boot # printenv serverip
+serverip=10.0.0.2
+u-boot # setenv serverip 10.0.0.100
+u-boot # saveenv
+\stoptyping
+
+  \SlideTitle{Important U-Boot env variables}
+  \startitemize
+  \item \type{bootcmd}, contains the command that U-Boot will
+    automatically execute at boot time after a configurable delay, if
+    the process is not interrupted
+  \item \type{bootargs}, contains the arguments passed to the Linux
+    kernel, covered later
+  \item \type{serverip}, the IP address of the server that U-Boot will
+    contact for network related commands
+  \item \type{ipaddr}, the IP address that U-Boot will use
+  \item \type{netmask}, the network mask to contact the server
+  \item \type{ethaddr}, the MAC address, can only be set once
+  \item \type{bootdelay}, the delay in seconds before which U-Boot
+    runs \type{bootcmd}
+  \item \type{autostart}, if yes, U-Boot starts automatically an image
+    that has been loaded into memory
+  \stopitemize
+
+  \SlideTitle{Scripts in environment variables}
+  \startitemize
+  \item Environment variables can contain small scripts, to execute
+    several commands and test the results of commands.
+    \startitemize
+    \item Useful to automate booting or upgrade processes
+    \item Several commands can be chained using the \type{;} operator
+    \item Tests can be done using
+      \type{if command ; then ... ; else ... ; fi}
+    \item Scripts are executed using \type{run <variable-name>}
+    \item You can reference other variables using
+      \type{${variable-name}}
+    \stopitemize
+  \item Example
+    \startitemize
+    \item \type{setenv mmc-boot 'mmc init 0; if fatload mmc 0 80000000
+      boot.ini; then source; else if fatload mmc 0 80000000 uImage;
+      then run mmc-bootargs; bootm; fi; fi'}
+  \stopitemize
+\stopitemize
+
+  \SlideTitle{Transferring files to the target}
+  \startitemize
+  \item U-Boot is mostly used to load and boot a kernel image, but it
+    also allows to change the kernel image and the root filesystem
+    stored in flash.
+  \item Files must be exchanged between the target and the development
+    workstation. This is possible:
+    \startitemize
+    \item Through the network if the target has an Ethernet
+      connection, and U-Boot contains a driver for the Ethernet
+      chip. This is the fastest and most efficient solution.
+    \item Through a USB key, if U-Boot support the USB controller of
+      your platform
+    \item Through a SD or microSD card, if U-Boot supports the MMC
+      controller of your platform
+    \item Through the serial port
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{TFTP}
+  \startitemize
+  \item Network transfer from the development workstation and U-Boot
+    on the target takes place through TFTP
+    \startitemize
+    \item {\em Trivial File Transfer Protocol}
+    \item Somewhat similar to FTP, but without authentication and over
+      UDP
+    \stopitemize
+  \item A TFTP server is needed on the development workstation
+    \startitemize
+    \item \type{sudo apt-get install tftpd-hpa}
+    \item All files in \type{/var/lib/tftpboot} are then visible
+      through TFTP
+    \item A TFTP client is available in the \type{tftp-hpa} package,
+      for testing
+    \stopitemize
+  \item A TFTP client is integrated into U-Boot
+    \startitemize
+    \item Configure the \type{ipaddr} and \type{serverip} environment
+      variables
+    \item Use \type{tftp <address> <filename>} to load a file
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{U-boot mkimage}
+  \startitemize
+  \item The kernel image that U-Boot loads and boots must be prepared,
+    so that a U-Boot specific header is added in front of the image
+    \startitemize
+    \item This header gives details such as the image size, the
+      expected load address, the compression type, etc.
+    \stopitemize
+  \item This is done with a tool that comes in U-Boot, \type{mkimage}
+  \item Debian / Ubuntu: just install the \type{u-boot-tools} package.
+  \item Or, compile it by yourself: simply configure U-Boot for any
+    board of any architecture and compile it. Then install \type{mkimage}:\\
+    \type{cp tools/mkimage /usr/local/bin/}
+  \item The special target \type{uImage} of the kernel Makefile can
+    then be used to generate a kernel image suitable for U-Boot.
+\stopitemize

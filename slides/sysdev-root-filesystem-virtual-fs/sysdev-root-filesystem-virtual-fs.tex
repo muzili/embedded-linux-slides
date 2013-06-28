@@ -1,0 +1,64 @@
+  \SlideTitle{proc virtual filesystem}
+  \startitemize
+  \item The \type{proc} virtual filesystem exists since the beginning of
+    Linux
+  \item It allows
+    \startitemize
+    \item The kernel to expose statistics about running processes in
+      the system
+    \item The user to adjust at runtime various system parameters
+      about process management, memory management, etc.
+    \stopitemize
+  \item The \type{proc} filesystem is used by many standard userspace
+    applications, and they expect it to be mounted in \type{/proc}
+  \item Applications such as \type{ps} or \type{top} would not work
+    without the \type{proc} filesystem
+  \item Command to mount \type{/proc}:\\
+    \type{mount -t proc nodev /proc}
+  \item \type{filesystems/proc.txt} in the kernel sources
+  \item \type{man proc}
+  \stopitemize
+
+  \SlideTitle{proc contents}
+  \startitemize
+  \item One directory for each running process in the system
+    \startitemize
+    \item \type{/proc/<pid>}
+    \item \type{cat /proc/3840/cmdline}
+    \item It contains details about the files opened by the process,
+      the CPU and memory usage, etc.
+    \stopitemize
+  \item \type{/proc/interrupts}, \type{/proc/devices},
+    \type{/proc/iomem}, \type{/proc/ioports} contain general
+    device-related information
+  \item \type{/proc/cmdline} contains the kernel command line
+  \item \type{/proc/sys} contains many files that can be written to to
+    adjust kernel parameters
+    \startitemize
+    \item They are called {\em sysctl}. See \type{sysctl/}
+      in kernel sources.
+    \item Example\\
+      \type{echo 3 > /proc/sys/vm/drop_caches}
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{sysfs filesystem}
+  \startitemize
+  \item The \type{sysfs} filesystem is a feature integrated in the 2.6
+    Linux kernel
+  \item It allows to represent in userspace the vision that the kernel
+    has of the buses, devices and drivers in the system
+  \item It is useful for various userspace applications that need to
+    list and query the available hardware, for example \type{udev} or
+    \type{mdev}.
+  \item All applications using sysfs expect it to be mounted in the
+    \type{/sys} directory
+  \item Command to mount \type{/sys}:\\
+    \type{mount -t sysfs nodev /sys}
+  \item
+\starttyping
+$ ls /sys/
+block bus class dev devices firmware
+fs kernel modulepower
+\stoptyping
+  \stopitemize

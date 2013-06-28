@@ -1,0 +1,451 @@
+
+  \SlideTitle{Kernel configuration and build system}
+  \startitemize
+  \item The kernel configuration and build system is based on multiple
+    Makefiles
+  \item One only interacts with the main \type{Makefile}, present at
+    the {\bf top directory} of the kernel source tree
+  \item Interaction takes place
+    \startitemize
+    \item using the \type{make} tool, which parses the Makefile
+    \item through various {\bf targets}, defining which action should
+      be done (configuration, compilation, installation, etc.). Run
+      \type{make help} to see all available targets.
+    \stopitemize
+  \item Example
+    \startitemize
+    \item \type{cd linux-3.6.x/}
+    \item \type{make <target>}
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Kernel configuration (1)}
+  \startitemize
+  \item The kernel contains thousands of device drivers, filesystem
+    drivers, network protocols and other configurable items
+  \item Thousands of options are available, that are used to
+    selectively compile parts of the kernel source code
+  \item The kernel configuration is the process of defining the set of
+    options with which you want your kernel to be compiled
+  \item The set of options depends
+    \startitemize
+    \item On your hardware (for device drivers, etc.)
+    \item On the capabilities you would like to give to your kernel
+      (network capabilities, filesystems, real-time, etc.)
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Kernel configuration (2)}
+  \startitemize
+  \item The configuration is stored in the \type{.config} file at the
+    root of kernel sources
+    \startitemize
+    \item Simple text file, \type{key=value} style
+    \stopitemize
+  \item As options have dependencies, typically never edited by hand,
+    but through graphical or text interfaces:
+    \startitemize
+    \item \type{make xconfig}, \type{make gconfig} (graphical)
+    \item \type{make menuconfig}, \type{make nconfig} (text)
+    \item You can switch from one to another, they all load/save the
+      same \type{.config} file, and show the same set of options
+    \stopitemize
+  \item To modify a kernel in a GNU/Linux distribution: the
+    configuration files are usually released in \type{/boot/},
+    together with kernel images: \type{/boot/config-3.2.0-31-generic}
+  \stopitemize
+
+  \SlideTitle{Kernel or module?}
+  \startitemize
+  \item The {\bf kernel image} is a {\bf single file}, resulting from
+    the linking of all object files that correspond to features
+    enabled in the configuration
+    \startitemize
+    \item This is the file that gets loaded in memory by the
+      bootloader
+    \item All included features are therefore available as soon as the
+      kernel starts, at a time where no filesystem exists
+    \stopitemize
+  \item Some features (device drivers, filesystems, etc.) can however
+    be compiled as {\bf modules}
+    \startitemize
+    \item Those are {\em plugins} that can be loaded/unloaded dynamically to
+      add/remove features to the kernel
+    \item Each {\bf module is stored as a separate file in the
+        filesystem}, and therefore access to a filesystem is mandatory
+      to use modules
+    \item This is not possible in the early boot procedure of the
+      kernel, because no filesystem is available
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Kernel option types}
+  \startitemize
+  \item There are different types of options
+    \startitemize
+    \item \type{bool} options, they are either
+      \startitemize
+      \item {\em true} (to include the feature in the kernel) or
+      \item {\em false} (to exclude the feature from the kernel)
+      \stopitemize
+    \item \type{tristate} options, they are either
+      \startitemize
+      \item {\em true} (to include the feature in the kernel image) or
+      \item {\em module} (to include the feature as a kernel module) or
+      \item {\em false} (to exclude the feature)
+      \stopitemize
+    \item \type{int} options, to specify integer values
+    \item \type{string} options, to specify string values
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Kernel option dependencies}
+  \startitemize
+  \item There are dependencies between kernel options
+  \item For example, enabling a network driver requires the network
+    stack to be enabled
+  \item Two types of dependencies
+    \startitemize
+    \item \type{depends on} dependencies. In this case, option A that
+      depends on option B is not visible until option B is enabled
+    \item \type{select} dependencies. In this case, with option A
+      depending on option B, when option A is enabled, option B is
+      automatically enabled
+    \item \type{make xconfig} allows to see all options, even those
+      that cannot be selected because of missing dependencies. In this
+      case, they are displayed in gray
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{make xconfig}
+  \type{make xconfig}
+  \startitemize
+  \item The most common graphical interface to configure the kernel.
+  \item Make sure you read\\
+    \type{help ->  introduction: useful options!}
+  \item File browser: easier to load configuration files
+  \item Search interface to look for parameters
+  \item Required Debian / Ubuntu packages: \type{libqt4-dev} \type{g++}
+    (\type{libqt3-mt-dev} for older kernel releases)
+  \stopitemize
+
+    \IncludePicture[horizontal][slides/sysdev-linux-intro-configuration/xconfig-screenshot.png]{make xconfig screenshot}
+
+  \SlideTitle{make xconfig search interface}
+
+  Looks for a keyword in the parameter name. Allows to select or
+  unselect found parameters.
+
+  \placefigure[center,none]{}{\externalfigure[slides/sysdev-linux-intro-configuration/xconfig-search.png][width=0.9\textwidth,height=0.8\textheight]}
+
+    \IncludePicture[horizontal][slides/sysdev-linux-intro-configuration/xconfig-iso-example.pdf]{Kernel configuration options}
+
+  \SlideTitle{Corresponding .config file excerpt}
+  Options are grouped by sections and are prefixed with
+  \type{CONFIG_}.
+\starttyping
+#
+# CD-ROM/DVD Filesystems
+#
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_UDF_FS=y
+CONFIG_UDF_NLS=y
+
+#
+# DOS/FAT/NT Filesystems
+#
+# CONFIG_MSDOS_FS is not set
+# CONFIG_VFAT_FS is not set
+CONFIG_NTFS_FS=m
+# CONFIG_NTFS_DEBUG is not set
+CONFIG_NTFS_RW=y
+\stoptyping
+
+  \SlideTitle{make gconfig}
+    \placefigure[right,none]{}{
+    \externalfigure[slides/sysdev-linux-intro-configuration/gconfig-screenshot.png][width=0.5\textwidth]}
+    \type{make gconfig}
+    \startitemize
+      \item {\em GTK} based graphical configuration interface. Functionality
+            similar to that of make \type{xconfig}.
+      \item Just lacking a search functionality.
+      \item Required Debian packages: \type{libglade2-dev}
+    \stopitemize
+
+
+  \SlideTitle{make menuconfig}
+    \placefigure[right,none]{}{
+    \externalfigure[slides/sysdev-linux-intro-configuration/menuconfig-screenshot.png][width=0.5\textwidth]}
+
+    \type{make menuconfig}
+    \startitemize
+      \item Useful when no graphics are available. Pretty convenient too!
+      \item Same interface found in other tools: BusyBox, Buildroot...
+      \item Required Debian packages: \type{libncurses-dev}
+    \stopitemize
+
+  \SlideTitle{make nconfig}
+    \placefigure[right,none]{}{
+    \externalfigure[slides/sysdev-linux-intro-configuration/nconfig-screenshot.png][width=0.5\textwidth]}
+
+    \type{make nconfig}
+    \startitemize
+      \item A newer, similar text interface
+      \item More user friendly (for example, easier to access help information).
+      \item Required Debian packages: \type{libncurses-dev}
+    \stopitemize
+
+  \SlideTitle{make oldconfig}
+  \type{make oldconfig}
+  \startitemize
+  \item Needed very often!
+  \item Useful to upgrade a \type{.config} file from an earlier kernel release
+  \item Issues warnings for configuration parameters that no longer
+    exist in the new kernel.
+  \item Asks for values for new parameters
+  \stopitemize
+  If you edit a \type{.config} file by hand, it's strongly recommended
+  to run \type{make oldconfig} afterwards!
+
+  \SlideTitle{make allnoconfig}
+  \type{make allnoconfig}
+  \startitemize
+  \item Only sets strongly recommended settings to \type{y}.
+  \item Sets all other settings to \type{n}.
+  \item Very useful in embedded systems to select only the minimum
+    required set of features and drivers.
+  \item Much more convenient than unselecting hundreds of features one
+    by one!
+  \stopitemize
+
+  \SlideTitle{Undoing configuration changes}
+  A frequent problem:
+  \startitemize
+  \item After changing several kernel configuration settings, your
+    kernel no longer works.
+  \item If you don't remember all the changes you made,
+    you can get back to your previous configuration:\\
+    \type{$ cp .config.old .config}
+  \item All the configuration interfaces of the kernel
+    (\type{xconfig}, \type{menuconfig}, \type{allnoconfig}...) keep
+    this \type{.config.old} backup copy.
+  \stopitemize
+
+  \SlideTitle{Configuration per architecture}
+  \startitemize
+  \item The set of configuration options is architecture dependent
+    \startitemize
+    \item Some configuration options are very architecture-specific
+    \item Most of the configuration options (global kernel options,
+      network subsystem, filesystems, most of the device drivers) are
+      visible in all architectures.
+    \stopitemize
+  \item By default, the kernel build system assumes that the kernel is
+    being built for the host architecture, i.e. native compilation
+  \item The architecture is not defined inside the configuration, but
+    at a higher level
+  \item We will see later how to override this behaviour, to allow the
+    configuration of kernels for a different architecture
+  \stopitemize
+
+  \SlideTitle{Overview of kernel options (1)}
+  \startitemize
+  \item General setup
+    \startitemize
+    \item {\em Local version - append to kernel release} allows to
+      concatenate an arbitrary string to the kernel version that a
+      user can get using \type{uname -r}. Very useful for support!
+    \item {\em Support for swap}, can usually be disabled on most
+      embedded devices
+    \item {\em Configure standard kernel features (expert users)}
+      allows to remove features from the kernel to reduce its
+      size. Powerful, but use with care!
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Overview of kernel options (2)}
+  \startitemize
+  \item Loadable module support
+    \startitemize
+    \item Allows to enable or completely disable module support. If
+      your system doesn't need kernel modules, best to disable since
+      it saves a significant amount of space and memory
+    \stopitemize
+  \item Enable the block layer
+    \startitemize
+    \item If \type{CONFIG_EXPERT} is enabled, the block layer can be
+      completely removed. Embedded systems using only flash storage
+      can safely disable the block layer
+    \stopitemize
+  \item Processor type and features (x86) or System type (ARM) or CPU selection
+    (MIPS)
+    \startitemize
+    \item Allows to select the CPU or machine for which the kernel
+      must be compiled
+    \item On x86, only optimization-related, on other architectures
+      very important since there's no compatibility
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Overview of kernel options (3)}
+  \startitemize
+  \item Kernel features
+    \startitemize
+    \item Tickless system, which allows to disable the regular timer
+      tick and use on-demand ticks instead. Improves power savings
+    \item High resolution timer support. By default, the resolution of
+      timer is the tick resolution. With high resolution timers, the
+      resolution is as precise as the hardware can give
+    \item Preemptible kernel enables the preemption inside the kernel
+      code (the userspace code is always preemptible). See our
+      real-time presentation for details
+    \stopitemize
+  \item Power management
+    \startitemize
+    \item Global power management option needed for all power
+      management related features
+    \item Suspend to RAM, CPU frequency scaling, CPU idle control,
+      suspend to disk
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Overview of kernel options (4)}
+  \startitemize
+  \item Networking support
+    \startitemize
+    \item The network stack
+    \item Networking options
+      \startitemize
+      \item Unix sockets, needed for a form of inter-process
+        communication
+      \item TCP/IP protocol with options for multicast, routing,
+        tunneling, Ipsec, Ipv6, congestion algorithms, etc.
+      \item Other protocols such as DCCP, SCTP, TIPC, ATM
+      \item Ethernet bridging, QoS, etc.
+      \stopitemize
+    \item Support for other types of network
+      \startitemize
+      \item CAN bus, Infrared, Bluetooth, Wireless stack, WiMax stack,
+        etc.
+      \stopitemize
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Overview of kernel options (5)}
+  \startitemize
+  \item Device drivers
+    \startitemize
+    \item MTD is the subsystem for flash (NOR, NAND, OneNand,
+      battery-backed memory, etc.)
+    \item Parallel port support
+    \item Block devices, a few misc block drivers such as loopback,
+      NBD, etc.
+    \item ATA/ATAPI, support for IDE disk, CD-ROM and tapes. A new
+      stack exists
+    \item SCSI
+      \startitemize
+      \item The SCSI core, needed not only for SCSI devices but also
+        for USB mass storage devices, SATA and PATA hard drives, etc.
+      \item SCSI controller drivers
+      \stopitemize
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Overview of kernel options (6)}
+  \startitemize
+  \item Device drivers (cont)
+    \startitemize
+    \item SATA and PATA, the new stack for hard disks, relies on SCSI
+    \item RAID and LVM, to aggregate hard drivers and do replication
+    \item Network device support, with the network controller
+      drivers. Ethernet, Wireless but also PPP
+    \item Input device support, for all types of input devices:
+      keyboards, mice, joysticks, touchscreens, tablets, etc.
+    \item Character devices, contains various device drivers, amongst
+      them
+      \startitemize
+      \item serial port controller drivers
+      \item PTY driver, needed for things like SSH or telnet
+      \stopitemize
+    \item I2C, SPI, 1-wire, support for the popular embedded buses
+    \item Hardware monitoring support, infrastructure and drivers for
+      thermal sensors
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Overview of kernel options (7)}
+  \startitemize
+  \item Device drivers (cont)
+    \startitemize
+    \item Watchdog support
+    \item Multifunction drivers are drivers that do not fit in any
+      other category because the device offers multiple functionality
+      at the same time
+    \item Multimedia support, contains the V4L and DVB subsystems, for
+      video capture, webcams, AM/FM cards, DVB adapters
+    \item Graphics support, infrastructure and drivers for
+      framebuffers
+    \item Sound card support, the OSS and ALSA sound infrastructures
+      and the corresponding drivers
+    \item HID devices, support for the devices that conform to the HID
+      specification (Human Input Devices)
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Overview of kernel options (8)}
+  \startitemize
+  \item Device drivers (cont)
+    \startitemize
+    \item USB support
+      \startitemize
+      \item Infrastructure
+      \item Host controller drivers
+      \item Device drivers, for devices connected to the embedded system
+      \item Gadget controller drivers
+      \item Gadget drivers, to let the embedded system act as a
+        mass-storage device, a serial port or an Ethernet adapter
+      \stopitemize
+    \item MMC/SD/SDIO support
+    \item LED support
+    \item Real Time Clock drivers
+    \item Voltage and current regulators
+    \item Staging drivers, crappy drivers being cleaned up
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Overview of kernel options (9)}
+  \startitemize
+  \item For some categories of devices the driver is not implemented
+    inside the kernel
+    \startitemize
+    \item Printers
+    \item Scanners
+    \item Graphics drivers used by X.org
+    \item Some USB devices
+    \stopitemize
+  \item For these devices, the kernel only provides a mechanism to
+    access the hardware, the driver is implemented in userspace
+  \stopitemize
+
+  \SlideTitle{Overview of kernel options (10)}
+  \startitemize
+  \item File systems
+    \startitemize
+    \item The common Linux filesystems for block devices: ext2, ext3,
+      ext4
+    \item Less common filesystems: XFS, JFS, ReiserFS, GFS2, OCFS2,
+      Btrfs
+    \item CD-ROM filesystems: ISO9660, UDF
+    \item DOS/Windows filesystems: FAT and NTFS
+    \item Pseudo filesystems: proc and sysfs
+    \item Miscellaneous filesystems, with amongst other flash
+      filesystems such as JFFS2, UBIFS, SquashFS, cramfs
+    \item Network filesystems, with mainly NFS and SMB/CIFS
+    \stopitemize
+  \item Kernel hacking
+    \startitemize
+    \item Debugging features useful for kernel developers
+    \stopitemize
+  \stopitemize

@@ -1,0 +1,126 @@
+
+  \SlideTitle{Advantages of modules}
+  \startitemize
+  \item Modules make it easy to develop drivers without rebooting:
+    load, test, unload, rebuild, load...
+  \item Useful to keep the kernel image size to the minimum (essential
+    in GNU/Linux distributions for PCs).
+  \item Also useful to reduce boot time: you don't spend time
+    initializing devices and kernel features that you only need later.
+  \item Caution: once loaded, have full control and privileges in the
+    system. No particular protection. That's why only the \type{root} user
+    can load and unload modules.
+  \stopitemize
+
+  \SlideTitle{Module dependencies}
+  \startitemize
+  \item Some kernel modules can depend on other modules,
+    which need to be loaded first.
+  \item Example: the \type{usb-storage} module depends on the
+    \type{scsi_mod}, \type{libusual} and \type{usbcore} modules.
+  \item Dependencies are described
+    in \type{/lib/modules/<kernel-version>/modules.dep}\\
+    This file is generated when you run \type{make modules_install}.
+  \stopitemize
+
+  \SlideTitle{Kernel log}
+
+  When a new module is loaded, related information is available in the
+  kernel log.
+  \startitemize
+  \item The kernel keeps its messages in a circular buffer (so that it
+    doesn't consume more memory with many messages)
+  \item Kernel log messages are available through the \type{dmesg}
+    command ({\bf d}iagnostic {\bf mes}sa{\bf g}e)
+  \item Kernel log messages are also displayed in the system console
+    (console messages can be filtered by level using the
+    \type{loglevel} kernel parameter, or completely disabled with the
+    \type{quiet} parameter).
+  \item Note that you can write to the kernel log from userspace too:\\
+    \type{echo "Debug info" > /dev/kmsg}
+  \stopitemize
+
+  \SlideTitle{Module utilities (1)}
+  \startitemize
+  \item \type{modinfo <module_name>}\\
+    \type{modinfo <module_path>.ko}\\
+    Gets information about a module: parameters, license, description
+    and dependencies.\\
+    Very useful before deciding to load a module or not.
+  \item \type{sudo insmod <module_path>.ko}\\
+    Tries to load the given module. The full path to the module object
+    file must be given.
+  \stopitemize
+
+  \SlideTitle{Understanding module loading issues}
+  \startitemize
+  \item When loading a module fails, \type{insmod} often doesn't give
+    you enough details!
+  \item Details are often available in the kernel log.
+  \item Example:\\
+\starttyping
+$ sudo insmod ./intr_monitor.ko
+insmod: error inserting './intr_monitor.ko': -1 Device or resource busy
+$ dmesg
+[17549774.552000] Failed to register handler for irq channel 2
+\stoptyping
+  \stopitemize
+
+  \SlideTitle{Module utilities (2)}
+  \startitemize
+  \item \type{sudo modprobe <module_name>}\\
+    Most common usage of \type{modprobe}: tries to load all the
+    modules the given module depends on, and then this module. Lots of
+    other options are available. \type{modprobe} automatically looks in
+    \type{/lib/modules/<version>/} for the object file corresponding
+    to the given module name.
+  \item \type{lsmod}\\
+    Displays the list of loaded modules\\
+    Compare its output with the contents of \type{/proc/modules}!
+  \stopitemize
+
+  \SlideTitle{Module utilities (3)}
+  \startitemize
+  \item \type{sudo rmmod <module_name>}\\
+    Tries to remove the given module.\\
+    Will only be allowed if the module is no longer in use (for
+    example, no more processes opening a device file)
+  \item \type{sudo modprobe -r <module_name>}\\
+    Tries to remove the given module and all dependent modules (which
+    are no longer needed after removing the module)
+  \stopitemize
+
+  \SlideTitle{Passing parameters to modules}
+  \startitemize
+  \item Find available parameters:\\
+    \type{modinfo snd-intel8x0m}
+  \item Through \type{insmod}:\\
+    \type{sudo insmod ./snd-intel8x0m.ko index=-2}
+  \item Through \type{modprobe}:\\
+    Set parameters in \type{/etc/modprobe.conf} or in any file in \type{/etc/modprobe.d/}:\\
+    \type{options snd-intel8x0m index=-2}
+  \item Through the kernel command line, when the driver is built statically into the kernel:\\
+    \type{snd-intel8x0m.index=-2}
+    \startitemize
+    \item \type{snd-intel8x0m} is the {\em driver name}
+    \item \type{index} is the {\em driver parameter name}
+    \item \type{-2} is the {\em driver parameter value}
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Useful reading}
+    \placefigure[right,none]{}{\externalfigure[slides/sysdev-linux-intro-modules/linux-kernel-in-a-nutshell.jpg][width=0.3\textwidth]}
+    Linux Kernel in a Nutshell, Dec 2006
+    \startitemize
+    \item By Greg Kroah-Hartman, O'Reilly\\
+      \hyphenatedurl{http://www.kroah.com/lkn/}
+    \item A good reference book and guide on configuring, compiling
+      and managing the Linux kernel sources.
+    \item Freely available on-line!\\
+      Great companion to the printed book for easy electronic searches!\\
+      Available as single PDF file on
+      \hyphenatedurl{http://free-electrons.com/community/kernel/lkn/}
+    \item Our rating: 2 stars
+    \stopitemize
+
+

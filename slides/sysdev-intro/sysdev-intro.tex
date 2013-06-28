@@ -1,0 +1,236 @@
+\SlideTitle{What is embedded Linux?}
+\startitemize
+\item Embedded Linux is the usage of the {\bf Linux kernel} and various
+  {\bf open-source} components in embedded systems
+\item Android is not embedded Linux
+\stopitemize
+
+\SlideTitle{Re-using components}
+\startitemize
+\item The key advantage of Linux and open-source in embedded systems
+  is the {\bf ability} to re-use components
+\item The open-source ecosystem already provides many components for
+  standard features, from hardware support to network protocols,
+  going through multimedia, graphic, cryptographic libraries, etc.
+\item As soon as a hardware device, or a protocol, or a feature is
+  wide-spread enough, high chance of having open-source components
+  that support it.
+\item Allows to quickly design and develop complicated products,
+  based on existing components.
+\item No-one should re-develop yet another operating system kernel,
+  TCP/IP stack, USB stack or another graphical toolkit library.
+\item {\bf Allows to focus on the added value of your product.}
+\stopitemize
+
+\SlideTitle{Low cost}
+\startitemize
+\item Free software can be duplicated on as many devices as you
+  want, free of charge.
+\item If your embedded system uses only free software, you can
+  reduce the cost of software licenses to zero. Even the development
+  tools are free, unless you choose a commercial embedded Linux
+  edition.
+\item {\bf Allows to have a higher budget for the hardware or to
+  increase the company’s skills and knowledge}
+\stopitemize
+
+\SlideTitle{Full control}
+\startitemize
+\item With open-source, you have the source code for all components
+  in your system
+\item Allows unlimited modifications, changes, tuning, debugging,
+  optimization, for an unlimited period of time
+\item Without locking or dependency from a third-party vendor
+  \startitemize
+  \item To be true, non open-source components must be avoided when
+    the system is designed and developed
+  \stopitemize
+\item {\bf Allows to have full control over the software part of
+  your system}
+\stopitemize
+
+\SlideTitle{Quality}
+\startitemize
+\item Many open-source components are widely used, on millions of
+  systems
+\item Usually higher quality than what an in-house development can
+  produce, or even proprietary vendors
+\item Of course, not all open-source components are of good quality,
+  but most of the widely-used ones are.
+\item {\bf Allows to design your system with high-quality components
+  at the foundations}
+\stopitemize
+
+\SlideTitle{Eases testing of new features}
+\startitemize
+\item Open-source being freely available, it is easy to get a piece
+  of software and evaluate it
+\item Allows to easily study several options while making a choice
+\item Much easier than purchasing and demonstration procedures
+  needed with most proprietary products
+\item {\bf Allows to easily explore new possibilities and solutions}
+\stopitemize
+
+\SlideTitle{Community support}
+\startitemize
+\item Open-source software components are developed by communities
+  of developers and users
+\item This community can provide a high-quality support: you can
+  directly contact the main developers of the component you are
+  using. The likelyhood of getting an answer doesn't depend what
+  company you work for.
+\item Often better than traditional support, but one needs to
+  understand how the community works to properly use the community
+  support possibilities
+\item {\bf Allows to speed up the resolution of problems when
+  developing your system}
+\stopitemize
+
+\SlideTitle{Processor and architecture (1)}
+\startitemize
+\item The Linux kernel and most other architecture-dependent component support a
+  wide range of 32 and 64 bits architectures
+  \startitemize
+  \item x86 and x86-64, as found on PC platforms, but also embedded systems
+    (multimedia, industrial)
+  \item ARM, with hundreds of different SoC (multimedia, industrial)
+  \item PowerPC (mainly real-time, industrial applications)
+  \item MIPS (mainly networking applications and multimedia)
+  \item SuperH (mainly set top box and multimedia applications)
+  \item Blackfin (DSP architecture)
+  \item Microblaze (soft-core for Xilinx FPGA)
+  \item Coldfire, SCore, Tile, Xtensa, Cris, FRV, AVR32, M32R
+  \stopitemize
+\stopitemize
+
+
+\SlideTitle{Processor and architecture (2)}
+\startitemize
+\item Both MMU and no-MMU architectures are supported, even though
+  no-MMU architectures have a few limitations.
+\item Linux is not designed for small microcontrollers.
+\item Besides the toolchain, the bootloader and the kernel, all
+  other components are generally {\bf architecture-independent}
+\stopitemize
+
+
+
+\SlideTitle{RAM and storage}
+\startitemize
+\item {\bf RAM}: a very basic Linux system can work within 8 MB of
+  RAM, but a more realistic system will usually require at least 32
+  MB of RAM. Depends on the type and size of applications.
+\item {\bf Storage}: a very basic Linux system can work within 4 MB
+  of storage, but usually more is needed.
+  \startitemize
+  \item Flash storage is supported, both NAND and NOR flash, with
+    specific filesystems
+  \item Block storage including SD/MMC cards and eMMC is supported
+  \stopitemize
+\item Not necessarily interesting to be too restrictive on the
+  amount of RAM/storage: having flexibility at this level allows to
+  re-use as many existing components as possible.
+\stopitemize
+
+
+
+\SlideTitle{Communication}
+The Linux kernel has support for many common communication
+  busses
+  \startitemize
+  \item I2C/SPI/CAN/1-wire/SDIO/USB
+  \item Ethernet, Wifi, Bluetooth, CAN, etc.
+  \item IPv4, IPv6, TCP, UDP, SCTP, DCCP, etc.
+  \item Firewalling, advanced routing, multicast
+  \stopitemize
+
+\SlideTitle{Types of hardware platforms}
+\startitemize
+\item {\bf Evaluation platforms} from the SoC vendor. Usually
+  expensive, but many peripherals are built-in. Generally unsuitable
+  for real products.
+\item {\bf Component on Module}, a small board with only
+  CPU/RAM/flash and a few other core components, with connectors to
+  access all other peripherals. Can be used to build end products
+  for small to medium quantities.
+\item {\bf Community development platforms}, a new trend to make a
+  particular SoC popular and easily available. Those are
+  ready-to-use and low cost, but usually have less peripherals than
+  evaluation platforms. To some extent, can also be used for real
+  products.
+\item {\bf Custom platform}. Schematics for evaluation boards or
+  development platforms are more and more commonly freely available,
+  making it easier to develop custom platforms.
+\stopitemize
+
+
+
+\SlideTitle{Criteria for choosing the hardware}
+\startitemize
+\item Make sure the hardware you plan to use is already supported by
+  the Linux kernel, and has an open-source bootloader, especially
+  the SoC you’re targeting.
+\item Having support in the official versions of the projects
+  (kernel, bootloader) is a lot better: quality is better, and new
+  versions are available.
+\item Some SoC vendors and/or board vendors do not contribute their
+  changes back to the mainline Linux kernel. Ask them to do so, or
+  use another product if you can. A good measurement is to see the
+  delta between their kernel and the official one.
+\item {\bf Between properly supported hardware in the official Linux
+  kernel and poorly-supported hardware, there will be huge
+  differences in development time and cost.}
+\stopitemize
+
+
+% To include a full slide picute.
+\IncludePicture
+  [horizontal]
+  [slides/sysdev-intro/global-architecture.pdf] % Name of the image
+  {Global architecture} % Title of the slide
+
+
+  \SlideTitle{Software components}
+  \startitemize
+  \item {\bf Cross-compilation toolchain}
+    Compiler that runs on the development machine, but generates
+    code for the target
+  \item {\bf Bootloader}
+    Started by the hardware, responsible for basic
+      initialization, loading and executing the kernel
+  \item {\bf Linux Kernel}
+    Contains the process and memory management, network stack,
+      device drivers and provides services to userspace applications
+  \item {\bf C library}
+    The interface between the kernel and the userspace
+      applications
+  \item {\bf Libraries and applications}
+     Third-party or in-house
+  \stopitemize
+
+  \SlideTitle{Embedded Linux work}
+
+  Several distinct tasks are needed when deploying embedded Linux in a
+  product:
+
+  \startitemize
+  \item {\bf Board Support Package development}
+    \startitemize
+    \item A BSP contains a bootloader and kernel with the suitable
+      device drivers for the targeted hardware
+    \item Purpose of our {\em Kernel Development} training
+    \stopitemize
+  \item {\bf System integration}
+    \startitemize
+    \item Integrate all the components, bootloader, kernel,
+      third-party libraries and applications and in-house applications
+      into a working system
+    \item Purpose of {\em this} training
+    \stopitemize
+  \item {\bf Development of applications}
+    \startitemize
+    \item Normal Linux applications, but using specifically chosen
+      libraries
+    \stopitemize
+  \stopitemize
+

@@ -1,0 +1,148 @@
+
+  \SlideTitle{Cross-compiling the kernel}
+  When you compile a Linux kernel for another CPU architecture
+  \startitemize
+  \item Much faster than compiling natively, when the target system is
+    much slower than your GNU/Linux workstation.
+  \item Much easier as development tools for your GNU/Linux
+    workstation are much easier to find.
+  \item To make the difference with a native compiler, cross-compiler
+    executables are prefixed by the name of the target system,
+    architecture and sometimes
+    library. Examples:\\
+    \type{mips-linux-gcc}, the prefix is \type{mips-linux-}\\
+    \type{arm-linux-gnueabi-gcc}, the prefix is \type{arm-linux-gnueabi-}
+  \stopitemize
+
+  \SlideTitle{Specifying cross-compilation (1)}
+
+  The CPU architecture and cross-compiler prefix are defined through
+  the \type{ARCH} and \type{CROSS_COMPILE} variables in the toplevel
+  Makefile.
+
+  \startitemize
+  \item \type{ARCH} is the name of the architecture. It is defined by
+    the name of the subdirectory in \type{arch/} in the kernel sources
+    \startitemize
+    \item Example: \type{arm} if you want to compile a kernel for
+          the \type{arm} architecture.
+    \stopitemize
+  \item \type{CROSS_COMPILE} is the prefix of the cross compilation
+    tools
+    \startitemize
+    \item Example: \type{arm-linux-} if your compiler is \type{arm-linux-gcc}
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Specifying cross-compilation (2)}
+
+  Two solutions to define \type{ARCH} and \type{CROSS_COMPILE}:
+
+  \startitemize
+  \item Pass \type{ARCH} and \type{CROSS_COMPILE} on the \type{make}
+    command line: \\
+    \type{make ARCH=arm CROSS_COMPILE=arm-linux- ...} \\
+    Drawback: it is easy to forget to pass these variables when
+    you run any \type{make} command, causing your build and
+    configuration to be screwed up.
+  \item Define \type{ARCH} and \type{CROSS_COMPILE} as environment
+    variables: \\
+    \type{export ARCH=arm} \\
+    \type{export CROSS_COMPILE=arm-linux-} \\
+    Drawback: it only works inside the current
+    shell or terminal. You could put these settings in a file
+    that you source every time you start working on the project.
+    If you only work on a single architecture with always the 
+    same toolchain, you could even put these settings in your
+    \type{~/.bashrc} file to make them permanent and visible from
+    any terminal.
+  \stopitemize
+
+  \SlideTitle{Predefined configuration files}
+  \startitemize
+  \item Default configuration files available, per board or per-CPU
+    family
+    \startitemize
+    \item They are stored in \type{arch/<arch>/configs/}, and are
+      just minimal \type{.config} files
+    \item This is the most common way of configuring a kernel for
+      embedded platforms
+    \stopitemize
+  \item Run \type{make help} to find if one is available for your
+    platform
+  \item To load a default configuration file, just run\\
+    \type{make acme_defconfig}
+    \startitemize
+    \item This will overwrite your existing \type{.config} file!
+    \stopitemize
+  \item To create your own default configuration file
+    \startitemize
+    \item \type{make savedefconfig}, to create a minimal
+      configuration file
+    \item \type{mv defconfig arch/<arch>/configs/myown_defconfig}
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Configuring the kernel}
+  \startitemize
+  \item After loading a default configuration file, you can adjust the
+    configuration to your needs with the normal \type{xconfig},
+    \type{gconfig} or \type{menuconfig} interfaces
+  \item You can also start the configuration from scratch without
+    loading a default configuration file
+  \item As the architecture is different from your host architecture
+    \startitemize
+    \item Some options will be different from the native configuration
+      (processor and architecture specific options, specific drivers,
+      etc.)
+    \item Many options will be identical (filesystems, network
+      protocol, architecture-independent drivers, etc.)
+    \stopitemize
+  \item Make sure you have the support for the right CPU, the right
+    board and the right device drivers.
+  \stopitemize
+
+  \SlideTitle{Building and installing the kernel}
+  \startitemize
+  \item Run \type{make}
+  \item Copy the final kernel image to the target storage
+    \startitemize
+    \item can be \type{uImage}, \type{zImage}, \type{vmlinux},
+      \type{bzImage} in \type{arch/<arch>/boot}
+    \stopitemize
+  \item \type{make install} is rarely used in embedded development, as the
+    kernel image is a single file, easy to handle
+    \startitemize
+    \item It is however possible to customize the make install
+      behaviour in \type{arch/<arch>/boot/install.sh}
+    \stopitemize
+  \item \type{make modules_install} is used even in embedded
+    development, as it installs many modules and description files
+    \startitemize
+    \item \type{make INSTALL_MOD_PATH=<dir>/ modules_install}
+    \item The \type{INSTALL_MOD_PATH} variable is needed to install
+      the modules in the target root filesystem instead of your host
+      root filesystem.
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Kernel command line}
+  \startitemize
+  \item In addition to the compile time configuration, the kernel
+    behaviour can be adjusted with no recompilation using the {\bf
+      kernel command line}
+  \item The kernel command line is a string that defines various
+    arguments to the kernel
+    \startitemize
+    \item It is very important for system configuration
+    \item \type{root=} for the root filesystem (covered later)
+    \item \type{console=} for the destination of kernel messages
+    \stopitemize
+  \item This kernel command line is either
+    \startitemize
+    \item Passed by the bootloader. In U-Boot, the contents of the
+      \type{bootargs} environment variable is automatically passed to the
+      kernel
+    \item Built into the kernel, using the \type{CONFIG_CMDLINE} option.
+    \stopitemize
+  \stopitemize

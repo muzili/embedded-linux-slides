@@ -1,0 +1,178 @@
+  \SlideTitle{Embedded Linux solutions}
+  \startitemize
+  \item Two ways to switch to embedded Linux
+    \startitemize
+    \item Use {\bf solutions provided and supported by vendors} like
+      MontaVista, Wind River or TimeSys. These solutions come with
+      their own development tools and environment. They use a mix of
+      open-source components and proprietary tools.
+    \item Use {\bf community solutions}. They are completely open,
+      supported by the community.
+    \stopitemize
+  \item In Free Electrons training sessions, we do not promote a particular
+    vendor, and therefore use community solutions
+    \startitemize
+    \item However, knowing the concepts, switching to vendor solutions will be easy
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{OS for Linux development}
+  \startitemize
+  \item We strongly recommend to use Linux as the desktop operating
+    system to embedded Linux developers, for multiple reasons.
+  \item All community tools are developed and designed to run on
+    Linux. Trying to use them on other operating systems (Windows, Mac
+    OS X) will lead to trouble, and their usage on those systems is
+    generally not supported by community developers.
+  \item As Linux also runs on the embedded device, all the knowledge
+    gained from using Linux on the desktop will apply similarly to the
+    embedded device.
+  \stopitemize
+
+  \SlideTitle{Desktop Linux distribution}
+  \startitemize
+    \item {\bf Any good and sufficiently recent Linux desktop
+        distribution} can be used for the development workstation
+      \startitemize
+      \item Ubuntu, Debian, Fedora, openSUSE, Red Hat, etc.
+      \stopitemize
+    \item We have chosen Ubuntu, as it is a {\bf widely used and easy to
+        use} desktop Linux distribution
+    \item The Ubuntu setup on the training laptops has intentionally
+      been left untouched after the normal installation
+      process. Learning embedded Linux is also about learning the tools
+      needed on the development workstation!
+    \stopitemize
+
+
+  \SlideTitle{Linux root and non-root users}
+  \startitemize
+  \item Linux is a multi-user operating system
+    \startitemize
+    \item The {\bf root user is the administrator}, and it can do
+      privileged operations such as: mounting filesystems, configuring
+      the network, creating device files, changing the system
+      configuration, installing or removing software
+    \item All {\bf other users are unprivileged}, and cannot perform
+      those administrator-level operations
+    \stopitemize
+  \item On an Ubuntu system, it is not possible to log in as
+    \type{root}, only as a normal user.
+  \item The system has been configured so that the user account
+    created first is allowed to run privileged operations through a
+    program called \type{sudo}.\\
+    \startitemize
+    \item Example: \type{sudo mount /dev/sda2 /mnt/disk}
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Software packages}
+  \startitemize
+  \item The distribution mechanism for software in GNU/Linux is
+    different from the one in Windows
+  \item Linux distributions provides a central and coherent way of
+    installing, updating and removing applications and libraries:
+    {\bf packages}
+  \item Packages contains the application or library files, and
+    associated meta-information, such as the version and the
+    dependencies
+    \startitemize
+    \item \type{.deb} on Debian and Ubuntu, \type{.rpm} on Red Hat,
+      Fedora, openSUSE
+    \stopitemize
+  \item Packages are stored in {\bf repositories}, usually on HTTP or
+    FTP servers
+  \item You should only use packages from official repositories for your
+    distribution, unless strictly required.
+\stopitemize
+
+  \SlideTitle{Managing software packages (1)}
+  Instructions for Debian based GNU/Linux systems\\
+  (Debian, Ubuntu...)
+  \startitemize
+  \item Package repositories are specified in \type{/etc/apt/sources.list}
+  \item To update package repository lists:\\
+    \type{sudo apt-get update}
+  \item To find the name of a package to install, the best is to use
+    the search engine on \hyphenatedurl{http://packages.debian.org} or on
+    \hyphenatedurl{http://packages.ubuntu.com}. You may
+    also use:\\
+    \type{apt-cache search <keyword>}
+  \stopitemize
+
+  \SlideTitle{Managing software packages (2)}
+  \startitemize
+  \item To install a given package:\\
+    \type{sudo apt-get install <package>}
+  \item To remove a given package:\\
+    \type{sudo apt-get remove <package>}
+  \item To install all available package updates:\\
+    \type{sudo apt-get dist-upgrade}
+  \item Get information about a package:\\
+    \type{apt-cache show <package>}
+  \item Graphical interfaces
+    Synaptic for GNOME
+    KPackageKit for KDE
+  \stopitemize
+  Further details on package management:\\
+  \hyphenatedurl{http://www.debian.org/doc/manuals/apt-howto/}
+
+  \SlideTitle{Host vs. target}
+  \startitemize
+  \item When doing embedded development, there is always a split between
+    \startitemize
+    \item The {\em host}, the development workstation, which is
+      typically a powerful PC
+    \item The {\em target}, which is the embedded system under
+      development
+    \stopitemize
+  \item They are connected by various means: almost always a serial
+    line for debugging purposes, frequently an Ethernet connection,
+    sometimes a JTAG interface for low-level debugging
+
+  \stopitemize
+  \placefigure[center,none]{}{
+        \externalfigure[slides/sysdev-dev-environment/host-vs-target.pdf][width=0.7\textwidth]
+  }
+
+  \SlideTitle{Serial line communication program}
+  \startitemize
+  \item An essential tool for embedded development is a serial line
+    communication program, like HyperTerminal in Windows.
+  \item There are multiple options available in Linux: Minicom,
+    Picocom, Gtkterm, Putty, etc.
+  \item In this training session, we recommend using the simplest of
+    them: \type{picocom}
+    \startitemize
+    \item Installation with \type{sudo apt-get install picocom}
+    \item Run with \type{picocom -b BAUD_RATE /dev/SERIAL_DEVICE}
+    \item Exit with \type{Control-A Control-X}
+    \stopitemize
+  \item \type{SERIAL_DEVICE} is typically
+    \startitemize
+    \item \type{ttyUSBx} for USB to serial converters
+    \item \type{ttySx} for real serial ports
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Command line tips}
+  \startitemize
+  \item Using the command line is mandatory for many operations needed
+    for embedded Linux development
+  \item It is a very powerful way of interacting with the system, with
+    which you can save a lot of time.
+  \item Some useful tips
+    \startitemize
+    \item You can use several tabs in the Gnome Terminal
+    \item Remember that you can use relative paths (for example:
+      \type{../../linux}) in addition to absolute paths (for example:
+      \type{/home/user})
+    \item In a shell, hit \type{[Control] [r]}, then a keyword, will
+      search through the command history. Hit \type{[Control] [r]}
+      again to search backwards in the history
+    \item You can copy/paste paths directly from the file manager to
+      the terminal by drag-and-drop.
+    \stopitemize
+  \stopitemize
+
+

@@ -1,0 +1,367 @@
+\chapterframe{Hotplugging with udev}
+
+  \SlideTitle{/dev issues and limitations}
+  \startitemize
+  \item On Red Hat 9, 18000 entries in \type{/dev}!\\
+    All entries for all possible devices had to be created at system
+    installation.
+  \item Needed an authority to assign major numbers\\
+    \hyphenatedurl{http://lanana.org/}: Linux Assigned Names and Numbers
+    Authority
+  \item Not enough numbers in 2.4, limits extended in 2.6.
+  \item Userspace neither knew what devices were present in the
+    system, nor which real device corresponded to each \type{/dev}
+    entry.
+  \stopitemize
+
+  \SlideTitle{The udev solution}
+  Takes advantage of {\bf sysfs} introduced by Linux 2.6.
+  \startitemize
+  \item Created by Greg Kroah Hartman, a huge contributor.\\
+    Other key contributors: Kay Sievers, Dan Stekloff.
+  \item {\em Entirely} in user space.
+  \item Automatically creates and removes device entries in
+    \type{/dev/} according to inserted and removed devices.
+  \item Major and minor device transmitted by the kernel.
+  \item Requires no change to driver code.
+  \item Fast: written in C\\
+    Relatively small size: \type{udevd} version 167: 127 KB
+  \stopitemize
+
+  \SlideTitle{Starting udev (1)}
+  \startitemize
+  \item At the very beginning of user-space startup,
+    mount the \type{/dev/} directory as a \type{tmpfs} filesystem:\\
+    \type{sudo mount -t tmpfs udev /dev}
+  \item \type{/dev/} is populated with static devices available in
+    \type{/lib/udev/devices/}:
+  \stopitemize
+  \begin{block}{}
+\starttyping
+$ ls -l /lib/udev/devices/
+total 12
+brw------- 1 root root   7, 0 2011-06-04 10:25 loop0
+drwxr-xr-x 2 root root   4096 2011-06-04 10:25 net
+crw------- 1 root root 108, 0 2011-06-04 10:25 ppp
+drwxr-xr-x 2 root root   4096 2011-04-07 14:43 pts
+drwxr-xr-x 2 root root   4096 2011-04-07 14:43 shm
+\stoptyping
+  \end{block}
+
+  \SlideTitle{Starting udev (2)}
+  \startitemize
+  \item The \type{udevd} daemon is started.  It listens to {\em uevents}
+    from the driver core, which are sent whenever devices are inserted
+    or removed.
+  \item The \type{udevd} daemon reads and parses all the rules found
+    in \type{/etc/udev/rules.d/} and keeps them in memory.
+  \item Whenever rules are added, removed or modified, \type{udevd}
+    receives an {\em inotify} event and updates its rule-set in memory.
+    \startitemize
+    \item The {\em inotify} mechanism lets userspace programs
+      subscribe to notifications of filesystem changes.
+    \item When an event is received, \type{udevd} starts a process to:
+      \startitemize
+      \item try to match the event against \type{udev} rules,
+      \item create / remove device files,
+      \item and run programs (to load / remove a driver, to notify user
+        space...)
+      \stopitemize
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{uevent message example}
+  Example inserting a USB mouse
+  \begin{block}{}
+\tiny
+\starttyping
+recv(4,
+     "add@/class/input/input9/mouse2\0
+     ACTION=add\0
+     DEVPATH=/class/input/input9/mouse2\0
+     SUBSYSTEM=input\0
+     SEQNUM=1064\0
+     PHYSDEVPATH=/devices/pci0000:00/0000:00:1d.1/usb2/2-2/2-2:1.0\0
+     PHYSDEVBUS=usb\0
+     PHYSDEVDRIVER=usbhid\0
+     MAJOR=13\0
+     MINOR=34\0",
+     2048,
+     0)
+= 221
+\stoptyping
+  \end{block}
+
+  \SlideTitle{udev rules}
+  When a \type{udev} rule matching event information is found, it can be
+  used:
+  \startitemize
+  \item To define the name and path of a device file.
+  \item To define the owner, group and permissions of a device file.
+  \item To execute a specified program.
+  \stopitemize
+  Rule files are processed in lexical order.
+
+  \SlideTitle{udev naming capabilities}
+  Device names can be defined
+  \startitemize
+  \item from a label or serial number,
+  \item from a bus device number,
+  \item from a location on the bus topology,
+  \item from a kernel name,
+  \item from the output of a program.
+  \stopitemize
+See \hyphenatedurl{http://www.reactivated.net/writing_udev_rules.html}
+for a very complete description. See also \type{man udev}.
+
+  \SlideTitle{udev naming rule examples}
+  \begin{block}{}
+\tiny
+\starttyping
+# Naming testing the output of a program
+BUS=="scsi", PROGRAM="/sbin/scsi_id", RESULT=="OEM 0815", NAME="disk1"
+
+# USB printer to be called lp_color
+BUS=="usb", SYSFS{serial}=="W09090207101241330", NAME="lp_color"
+
+# SCSI disk with a specific vendor and model number will be called boot
+BUS=="scsi", SYSFS{vendor}=="IBM", SYSFS{model}=="ST336", NAME="boot%n"
+
+# sound card with PCI bus id 00:0b.0 to be called dsp
+BUS=="pci", ID=="00:0b.0", NAME="dsp"
+
+# USB mouse at third port of the second hub to be called mouse1
+BUS=="usb", PLACE=="2.3", NAME="mouse1"
+
+# ttyUSB1 should always be called pda with two additional symlinks
+KERNEL=="ttyUSB1", NAME="pda", SYMLINK="palmtop handheld"
+
+# multiple USB webcams with symlinks to be called webcam0, webcam1, ...
+BUS=="usb", SYSFS{model}=="XV3", NAME="video%n", SYMLINK="webcam%n"
+\stoptyping
+  \end{block}
+
+  \SlideTitle{udev permission rule examples}
+  Excerpts from \type{/etc/udev/rules.d/40-permissions.rules}
+\begin{block}{}
+\starttyping
+# Block devices
+SUBSYSTEM!="block", GOTO="block_end"
+SYSFS{removable}!="1", GROUP="disk"
+SYSFS{removable}=="1", GROUP="floppy"
+BUS=="usb", GROUP="plugdev"
+BUS=="ieee1394", GROUP="plugdev"
+LABEL="block_end"
+
+# Other devices, by name
+KERNEL=="null", MODE="0666"
+KERNEL=="zero", MODE="0666"
+KERNEL=="full", MODE="0666"
+\stoptyping
+  \end{block}
+
+  \SlideTitle{Identifying device driver modules}
+    \IncludePicture[horizontal][slides/sysdev-udev/module-autoloading.pdf]{}
+
+  \SlideTitle{Module aliases}
+  \startitemize
+  \item \type{MODALIAS} environment variable example (USB mouse):\\
+    \type{MODALIAS=usb:v046DpC03Ed2000dc00dsc00dp00ic03isc01ip02}
+  \item Matching line in \type{/lib/modules/<version>/modules.alias}:\\
+    \type{alias usb:v*p*d*dc*dsc*dp*ic03isc01ip02* usbmouse}
+  \stopitemize
+
+  \SlideTitle{udev modprobe rule examples}
+  Even module loading is done with \type{udev}!\\
+  Excerpts from \type{/etc/udev/rules.d/90-modprobe.rules}
+  \begin{block}{}
+\starttyping
+ACTION!="add", GOTO="modprobe_end"
+
+SUBSYSTEM!="ide", GOTO="ide_end"
+IMPORT{program}="ide_media --export $devpath"
+ENV{IDE_MEDIA}=="cdrom",RUN+="/sbin/modprobe -Qba ide-cd"
+ENV{IDE_MEDIA}=="disk",RUN+="/sbin/modprobe -Qba ide-disk"
+ENV{IDE_MEDIA}=="floppy", RUN+="/sbin/modprobe -Qba ide-floppy"
+ENV{IDE_MEDIA}=="tape", RUN+="/sbin/modprobe -Qba ide-tape"
+LABEL="ide_end"
+SUBSYSTEM=="input", PROGRAM="/sbin/grepmap --udev", \
+   RUN+="/sbin/modprobe -Qba $result"
+# Load drivers that match kernel-supplied alias
+ENV{MODALIAS}=="?*", RUN+="/sbin/modprobe -Q $env{MODALIAS}"
+\stoptyping
+  \end{block}
+
+  \SlideTitle{Cold-plugging}
+  \startitemize
+  \item Issue: loosing all device events happening during kernel
+    initialization, because \type{udev} is not ready yet.
+  \item Solution: after starting \type{udevd}, have the kernel emit
+    uevents for all devices present in \type{/sys}.
+  \item This can be done by the \type{udevtrigger} utility.
+  \item Strong benefit: completely transparent for userspace. Legacy
+    and removable devices handled and named in exactly the same way.
+  \stopitemize
+
+  \SlideTitle{Debugging events - udevmonitor (1)}
+  \type{udevadm monitor} visualizes the driver core events and the \type{udev} event processes.\\
+  Example event sequence connecting a USB mouse:
+  \begin{block}{}
+\tiny
+\starttyping
+UEVENT[1170452995.094476] add@/devices/pci0000:00/0000:00:1d.7/usb4/4-3/4-3.2
+UEVENT[1170452995.094569] add@/devices/pci0000:00/0000:00:1d.7/usb4/4-3/4-3.2/4-3.2:1.0
+UEVENT[1170452995.098337] add@/class/input/input28
+UEVENT[1170452995.098618] add@/class/input/input28/mouse2
+UEVENT[1170452995.098868] add@/class/input/input28/event4
+UEVENT[1170452995.099110] add@/class/input/input28/ts2
+UEVENT[1170452995.099353] add@/class/usb_device/usbdev4.30
+UDEV  [1170452995.165185] add@/devices/pci0000:00/0000:00:1d.7/usb4/4-3/4-3.2
+UDEV  [1170452995.274128] add@/devices/pci0000:00/0000:00:1d.7/usb4/4-3/4-3.2/4-3.2:1.0
+UDEV  [1170452995.375726] add@/class/usb_device/usbdev4.30
+UDEV  [1170452995.415638] add@/class/input/input28
+UDEV  [1170452995.504164] add@/class/input/input28/mouse2
+UDEV  [1170452995.525087] add@/class/input/input28/event4
+UDEV  [1170452995.568758] add@/class/input/input28/ts2
+\stoptyping
+\end{block}
+It gives time information measured in microseconds. You can measure
+time elapsed between the uevent (\type{UEVENT} line), and the completion of
+the corresponding \type{udev} process (matching \type{UDEV} line).
+
+\SlideTitle{Debugging events - udevmonitor (2)}
+\type{udevadm monitor --env} shows the complete event environment for each line.
+\begin{block}{}
+\tiny
+\starttyping
+UDEV [1170453642.595297] add@/devices/pci0000:00/0000:00:1d.7/usb4/4-3/4-3.2/4-3.2:1.0
+UDEV_LOG=3
+ACTION=add
+DEVPATH=/devices/pci0000:00/0000:00:1d.7/usb4/4-3/4-3.2/4-3.2:1.0
+SUBSYSTEM=usb
+SEQNUM=3417
+PHYSDEVBUS=usb
+DEVICE=/proc/bus/usb/004/031
+PRODUCT=46d/c03d/2000
+TYPE=0/0/0
+INTERFACE=3/1/2
+MODALIAS=usb:v046DpC03Dd2000dc00dsc00dp00ic03isc01ip02
+UDEVD_EVENT=1
+\stoptyping
+\end{block}
+
+  \SlideTitle{Misc udev utilities}
+  \startitemize
+  \item \type{udevinfo}\\
+    Lets users query the \type{udev} database.
+  \item \type{udevtest <sysfs_device_path>} \\
+    Simulates a \type{udev} run to test the configured rules.
+  \stopitemize
+
+  \SlideTitle{Firmware hotplugging}
+  Also implemented with \type{udev}!
+  \startitemize
+  \item Firmware data are kept outside device drivers
+    \startitemize
+    \item May not be legal or free enough to distribute
+    \item Firmware in kernel code would occupy memory permanently,
+      even if just used once.
+    \stopitemize
+  \item Kernel configuration: needs to be set in \type{CONFIG_FW_LOADER}\\
+    ({\em Device Drivers} $\rightarrow$ {\em Generic Driver Options}
+    $\rightarrow$ {\em hotplug firmware loading support})
+  \stopitemize
+
+  \SlideTitle{Firmware hotplugging implementation}
+    \IncludePicture[horizontal][slides/sysdev-udev/firmware-hotplugging.pdf]{}
+  See \type{firmware_class/} in the kernel sources for a
+  nice overview
+
+  \SlideTitle{udev files}
+  \startitemize
+  \item \type{/etc/udev/udev.conf}\\
+    \type{udev} configuration file.\\
+    Mainly used to configure syslog reporting priorities.\\
+    Example setting: \type{udev_log="err"}
+  \item \type{/lib/udev/rules.d/}\\
+    Standard \type{udev} event matching rules, installed by the distribution.
+  \item \type{/etc/udev/rules.d/*.rules}\\
+    Local (custom) \type{udev} event matching rules. Best to modify these.
+  \item \type{/lib/udev/devices/*}\\
+    static \type{/dev} content (such as \type{/dev/console},
+    \type{/dev/null}...).
+  \item \type{/lib/udev/*}\\
+    helper programs called from \type{udev} rules.
+  \item \type{/dev/*}\\
+    Created device files.
+  \stopitemize
+
+  \SlideTitle{Kernel configuration for udev}
+  \startitemize
+  \item Created for 2.6.19
+  \item Caution: no documentation found, and not tested yet on a minimalistic system. Some settings may still be missing.
+  \item Subsystems and device drivers (USB, PCI, PCMCIA...) should be added too!
+  \stopitemize
+  \begin{block}{}
+\tiny
+\starttyping
+# General setup
+CONFIG_HOTPLUG=y
+# Networking, networking options
+CONFIG_NET=y
+# Unix domain sockets
+CONFIG_UNIX=y
+CONFIG_NETFILTER_NETLINK=y
+CONFIG_NETFILTER_NETLINK_QUEUE=y
+# Pseudo filesystems
+CONFIG_PROC_FS=y
+CONFIG_SYSFS=y
+# Needed to manage /dev
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+\stoptyping
+  \end{block}
+
+  \SlideTitle{udev summary - typical operation}
+    \IncludePicture[horizontal][slides/sysdev-udev/udev-overall-architecture.pdf]{}
+
+  \SlideTitle{udev resources}
+  \startitemize
+  \item Home page\\
+    \hyphenatedurl{http://kernel.org/pub/linux/utils/kernel/hotplug/udev.html}
+  \item Sources\\
+    \hyphenatedurl{http://kernel.org/pub/linux/utils/kernel/hotplug/}
+  \item The \type{udev} manual page:\\
+    \type{man udev}
+  \stopitemize
+
+  \SlideTitle{mdev, the udev for embedded systems}
+  \startitemize
+  \item {\em udev} might be too heavy-weight for some embedded
+    systems, the \type{udevd} daemon staying in the background waiting for
+    events.
+  \item BusyBox provides a simpler alternative called \type{mdev},
+    available by enabling the \type{MDEV} configuration option.
+  \item \type{mdev}'s usage is documented in \type{doc/mdev.txt} in the BusyBox source code.
+  \item\type{mdev}mdev is also able to load firmware to the kernel like
+    \type{udev}
+  \stopitemize
+
+  \SlideTitle{mdev usage}
+  \startitemize
+  \item To use \type{mdev}, the \type{proc} and \type{sysfs} filesystems must be mounted
+  \item \type{mdev} must be enabled as the hotplug event manager\\
+    \type{echo /sbin/mdev > /proc/sys/kernel/hotplug}
+  \item Need to mount \type{/dev} as a \type{tmpfs}:\\
+    \type{mount -t tmpfs mdev /dev}
+  \item Tell \type{mdev} to create the \type{/dev} entries
+    corresponding to the devices detected
+    during boot when \type{mdev} was not running:\\
+    \type{mdev -s}
+  \item The behavior is specified by the \type{/etc/mdev.conf} configuration
+    file, with the following format\\
+    \type{<device regex> <uid>:<gid> <octal permissions> [=path] [@|$|*<command>]}
+  \item Example\\
+    \type{hd[a-z][0-9]* 0:3 660}
+  \stopitemize
+

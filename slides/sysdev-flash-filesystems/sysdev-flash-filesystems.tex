@@ -1,0 +1,411 @@
+
+  \IncludePicture[horizontal][slides/sysdev-flash-filesystems/mtd-architecture.pdf]{The MTD subsystem}
+
+  \SlideTitle{MTD devices}
+  \startitemize
+  \item MTD devices are visible in \type{/proc/mtd}
+  \item The {\bf mtdchar} driver creates a character device for each
+    MTD device of the system
+    \startitemize
+    \item Usually named \type{/dev/mtdX}, major 90. Even minors for
+      read-write access, odd minors for read-only access
+    \item Provide \type{ioctl()} to erase and manage the flash
+    \item Used by the {\em mtd-utils} utilities
+    \stopitemize
+  \item The {\bf mtdblock} driver creates a block device for each MTD
+    device of the system
+    \startitemize
+    \item Usually named \type{/dev/mtdblockX}, major 31. Minor is the
+      number of the MTD device
+    \item Allows read/write block-level access. But bad blocks are not
+      handled, and no wear leveling is done for writes.
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{MTD partitioning}
+  \startitemize
+  \item MTD devices are usually partitioned
+    \startitemize
+    \item It allows to use different areas of the flash for different
+      purposes: read-only filesystem, read-write filesystem, backup
+      areas, bootloader area, kernel area, etc.
+    \stopitemize
+  \item Unlike block devices, which contains their own partition
+    table, the partitioning of MTD devices is described externally
+    \startitemize
+    \item Hard-coded into the kernel code
+    \item Specified through the kernel command line
+    \stopitemize
+  \item Each partition becomes a separate MTD device
+    \startitemize
+    \item Different from block device labeling (\type{hda3},
+      \type{sda2})
+    \item \type{/dev/mtd1} is either the second partition of the first
+      flash device, or the first partition of the second flash device
+\stopitemize
+\stopitemize
+
+  \SlideTitle{Definition of MTD partitions}
+
+  MTD partitions are defined in the kernel, in the board
+  definitions. Example from
+  \type{arch/arm/mach-omap2/board-igep0020.c}:
+\starttyping
+static struct mtd_partition igep2_flash_partitions[] = {
+    {
+        .name   = "X-Loader",
+        .offset = 0,
+        .size   = 2 * (64*(2*2048))
+    },
+    {
+        .name   = "U-Boot",
+        .offset = MTDPART_OFS_APPEND,
+        .size   = 6 * (64*(2*2048)),
+    },
+    [...]
+    {
+        .name   = "File System",
+        .offset = MTDPART_OFS_APPEND,
+        .size   = MTDPART_SIZ_FULL,
+    },
+};
+\stoptyping
+
+  \SlideTitle{Modifying MTD partitions (1)}
+  \startitemize
+  \item MTD partitions can fortunately be defined through the kernel
+    command line.
+  \item First need to find the name of the MTD device. Look at the
+    kernel log at boot time. In our case, the MTD device name is
+    \type{omap2-nand.0}:
+\stopitemize
+\starttyping
+NAND device: Manufacturer ID: 0x2c, Chip ID: 0xbc (Micron NAND 512MiB 1,8V 16-bit)
+Creating 5 MTD partitions on "omap2-nand.0":
+0x000000000000-0x000000080000 : "X-Loader"
+0x000000080000-0x000000200000 : "U-Boot"
+0x000000200000-0x000000280000 : "Environment"
+0x000000280000-0x000000580000 : "Kernel"
+0x000000580000-0x000020000000 : "File System"
+\stoptyping
+
+  \SlideTitle{Modifying MTD partitions (2)}
+  \startitemize
+  \item You can now use the \type{mtdparts} kernel boot parameter
+  \item Example:\\
+    \type{mtdparts=omap2-nand.0:512k(X-Loader)ro,1536k(U-Boot)ro,512k(Environment),4m(Kernel),16m(RootFS),-(Data)}
+  \item We've just defined 6 partitions in the omap2-nand.0 device:
+    \startitemize
+    \item \type{1st stage bootloader} (512 KiB, read-only)
+    \item \type{U-Boot} (1536 KiB, read-only)
+    \item \type{U-Boot environment} (512 KiB)
+    \item \type{Kernel} (4 MiB)
+    \item \type{Root filesystem} (16 MiB)
+    \item \type{Data filesystem} (Remaining space)
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Modifying MTD partitions (3)}
+  \startitemize
+  \item Partition sizes must be multiple of the erase block size.\\
+    You can use sizes in hexadecimal too. Remember the below sizes:\\
+    \type{0x20000} = 128k, \type{0x100000} = 1m, \type{0x1000000} = 16m
+  \item \type{ro} lists the partition as read only
+  \item \type{-} is used to use all the remaining space.
+  \stopitemize
+
+  \SlideTitle{mtd-utils}
+  \startitemize
+  \item A set of utilities to manipulate MTD devices
+    \startitemize
+    \item \type{mtdinfo} to get detailed information about an MTD device
+    \item \type{flash_eraseall} to completely erase a given MTD device
+    \item \type{flashcp} to write to NOR flash
+    \item \type{nandwrite} to write to NAND flash
+    \item UBI utilities
+    \item Flash filesystem image creation tools: \type{mkfs.jffs2},
+      \type{mkfs.ubifs}
+    \stopitemize
+  \item Usually available as the \type{mtd-utils} package in your distribution
+  \item Most commands now also available in BusyBox
+  \item See \hyphenatedurl{http://www.linux-mtd.infradead.org/}
+  \stopitemize
+
+  \SlideTitle{jffs2}
+    \placefigure[right,none]{}{\externalfigure[slides/sysdev-flash-filesystems/jffs2.pdf][width=0.2\textwidth]}
+    \startitemize
+    \item Today's standard filesystem for MTD flash
+    \item Nice features: on the fly compression (saves storage space
+      and reduces I/O), power down reliable, wear-leveling and ECC.
+    \item Drawbacks: doesn't scale well
+      \startitemize
+      \item Mount time depending on filesystem size: the kernel has to
+        scan the whole filesystem at mount time, to read which block
+        belongs to each file.
+      \item Need to use the \type{CONFIG_JFFS2_SUMMARY} kernel option
+        to store such information in flash. This dramatically reduces
+        mount time (from 16 s to 0.8s for a 128 MB partition).
+      \stopitemize
+    \item \hyphenatedurl{http://www.linux-mtd.infradead.org/doc/jffs2.html}
+    \stopitemize
+
+  \SlideTitle{jffs2 - How to use}
+  On the Linux {\bf target}
+  \startitemize
+  \item Need either the \type{mtd-utils} package from the MTD project,
+    or their embedded variants from Busybox
+  \item Erase and format a partition with jffs2:\\
+    \type{flash_eraseall -j /dev/mtd2}
+  \item Mount the partition:\\
+    \type{mount -t jffs2 /dev/mtdblock2 /mnt/flash}\\
+  \item Fill the contents by writing\\
+    (copying from NFS or from external storage)
+  \item Other possibility: use a {\em jffs2} image (see next page to
+    produce it):\\
+    \type{flash_eraseall /dev/mtd2}\\
+    \type{nandwrite -p /dev/mtd2 rootfs.jffs2}
+  \stopitemize
+
+  \SlideTitle{How to create a jffs2 image}
+  \startitemize
+  \item \type{mkfs.jffs2} command available in the mtd-utils package.\\
+    Caution: unlike some \type{mkfs} commands, it doesn't create a
+    filesystem, but a filesystem image.
+  \item First, find the erase block size (on the target running Linux):\\
+    \type{cat /proc/mtd} \\
+    For example: \type{00040000} (256 KiB)
+  \item Then create the image on your workstation:\\
+    \type{mkfs.jffs2 --pad --no-cleanmarkers --eraseblock=256 -d rootfs/ -o rootfs.jffs2}
+  \item The \type{--pad} option pads the jffs2 image contents\\
+    until the end of the final erase block.
+  \item It is fine if the jffs2 image is smaller than the MTD partition.\\
+    The jffs2 file system will use the entire partition anyway.
+  \item The \type{--no-cleanmarkers} option is for NAND flash only.
+  \stopitemize
+
+  \SlideTitle{Mounting a jffs2 image on your host}
+  Useful to edit \type{jffs2} images on your development system\\
+  Mounting an MTD device as a loop device is a bit complex task.\\
+  Here's an example for \type{jffs2}, for your reference:
+  \startitemize
+  \item First find the erase block size used to create the jffs2 image.\\
+    Let's assume it is 256KiB (262144 bytes).
+  \item Create a block device from the image\\
+    \type{losetup /dev/loop0 root.jffs2}
+  \item Emulate an MTD device from a block device,\\
+    using the \type{block2mtd} kernel module\\
+    \type{modprobe block2mtd block2mtd=/dev/loop0,262144}
+  \item Load the mtdblock driver if needed\\
+    \type{modprobe mtdblock}
+  \item Finally, mount the filesystem (create \type{/mnt/jffs2} if needed)\\
+    \type{mount -t jffs2 /dev/mtdblock0 /mnt/jffs2}
+  \stopitemize
+
+  \SlideTitle{Initializing jffs2 partitions from U-boot}
+  You may not want to have \type{mtd-utils} on your target!
+  \startitemize
+  \item Create a JFFS2 image on your workstation
+  \item In the U-Boot prompt:
+    \startitemize
+    \item Download the jffs2 image to RAM with \type{tftp}\\
+      Or copy this image to RAM from external storage\\
+      (U-boot understands FAT filesystems and supports USB storage)
+    \item Flash it inside an MTD partition\\
+      (exact instructions depending on flash type, NOR or NAND,\\
+      reuse the instructions used to flash your kernel). Make sure to
+      write only the size of the image, not more!
+    \item If you boot on a jffs2 root filesystem, add
+      \type{root=/dev/mtdblock<x>} and \type{rootfstype=jffs2} to the
+      Linux command line arguments.
+    \stopitemize
+  \item Limitation: need to split the jffs2 image in several chunks\\
+    if bigger than the RAM size.
+  \stopitemize
+
+  \SlideTitle{UBI (1)}
+  Unsorted Block Images
+  \startitemize
+  \item \hyphenatedurl{http://www.linux-mtd.infradead.org/doc/ubi.html}
+  \item Volume management system on top of MTD devices.
+  \item Allows to create multiple logical volumes and spread writes
+    across all physical blocks.
+  \item Takes care of managing the erase blocks and wear
+    leveling. Makes filesystems easier to implement.
+  \item Wear leveling can operate on the whole storage,
+    not only on individual partitions (strong advantage). 
+  \item Volumes can be dynamically resized or, on the opposite, can be
+    read-only (static).
+  \stopitemize
+
+  \IncludePicture[horizontal][slides/sysdev-flash-filesystems/ubi.pdf]{UBI (2)}
+
+  \SlideTitle{UBIFS}
+    \hyphenatedurl{http://www.linux-mtd.infradead.org/doc/ubifs.html}
+
+    \placefigure[right,none]{}{\externalfigure[slides/sysdev-flash-filesystems/ubifs.pdf][width=0.2\textwidth]}
+
+    \startitemize
+    \item The next generation of the jffs2 filesystem, from the same
+      linux-mtd developers.
+    \item Available since Linux 2.6.27
+    \item Works on top of UBI volumes
+    \item Has a noticeable metadata overhead on very small partitions
+      (4M, 8M)
+    \stopitemize
+
+  \IncludePicture[horizontal][slides/sysdev-flash-filesystems/ubifs-layout.pdf]{UBI layout example}
+
+  \SlideTitle{UBI - Preparation}
+  \startitemize
+  \item Have \type{/dev/} mounted as a \type{devtmpfs} filesystem
+  \item Erase your flash partition while preserving your erase counters\\
+    \type{ubiformat /dev/mtd1}\\
+    See \hyphenatedurl{http://www.linux-mtd.infradead.org/faq/ubi.html} if you
+    face problems
+  \item Attach UBI to one (of several) of the MTD partitions:\\
+    \type{ubiattach /dev/ubi_ctrl -m 1}
+  \item This command creates the \type{ubi0} device, which represent
+    the full UBI space stored on MTD device 1 (new \type{/dev/ubi0}
+    character device)
+  \stopitemize
+
+  \SlideTitle{UBI - Volume management}
+  \startitemize
+  \item Volume creation with \type{ubimkvol}
+    \startitemize
+    \item \type{ubimkvol /dev/ubi0 -N test -s 116MiB}
+    \item \type{ubimkvol /dev/ubi0 -N test -m} (max available size)
+    \item The volume is then identified as \type{ubi0:test} for the
+      \type{mount}/\type{umount} commands
+    \stopitemize
+  \item Volume removal with \type{ubirmvol}
+    \startitemize
+    \item \type{ubirmvol /dev/ubi0 -N test}
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{UBIFS - How to use}
+  \startitemize
+  \item When a UBI volume is created, creating an empty UBIFS
+    filesystem is just a matter of mounting it
+    \startitemize
+    \item \type{mount -t ubifs ubi0:test /mnt/flash}
+    \stopitemize
+  \item Images of UBIFS filesystems can be created using the
+    \type{mkfs.ubifs} utility
+    \startitemize
+    \item \type{mkfs.ubifs -m 4096 -e 256KiB -c 1000 -r rootfs/ ubifs.img}
+      \startitemize
+      \item \type{-m 4096}, minimal I/O size
+      \item \type{-e 256 KiB}, erase block size
+      \item \type{-c 1000}, maximum number of logical erase
+        blocks. See
+        \hyphenatedurl{http://www.linux-mtd.infradead.org/faq/ubifs.html\#L_max_leb_cnt}
+        for details.
+      \stopitemize
+    \item Can be written to a UBI volume using \type{ubiupdatevol} and
+      the \type{/dev/ubiX_Y devices}
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Ubinize}
+  \startitemize
+  \item Images of a full UBI space, containing several volumes can be
+    created using the \type{ubinize} utility
+    \startitemize
+    \item Can be written to a raw MTD partition using \type{nand write} in U-boot.
+    \item Caution: \type{nand erase} will also erase the Erase
+      Counters
+    \stopitemize
+  \item \type{ubinize -o ubi.img -p 256KiB -m 4096 ubi.ini}
+    \startitemize
+    \item Creates \type{ubi.img}, with 256KiB physical erase blocks,
+      4096 minimum I/O size (\type{-m}).
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{UBIFS - How to prepare a root fs}
+  \startitemize
+  \item Create the UBIFS image from the target directory
+  \item Write the configuration file for the UBI device (\type{ubi.ini}):
+\small
+\starttyping
+[RFS-volume]
+mode=ubi
+image=rootfs.ubifs
+vol_id=1
+vol_size=30MiB
+vol_type=dynamic
+vol_name=rootfs
+vol_flags=autoresize
+vol_alignment=1
+\stoptyping
+  \item Create the UBI device image
+  \item Flash it using a bad block aware command from the bootloader
+  \item Pass UBI layout information to the kernel:
+    \startitemize
+    \item \type{rootfstype=ubifs ubi.mtd=1 root=ubi0:rootfs}
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Flash filesystem benchmarks}
+  \hyphenatedurl{http://elinux.org/Flash_Filesystem_Benchmarks}
+  \startitemize
+  \item {\bf jffs2}
+    \startitemize
+    \item Worst performance
+    \item Requires \type{CONFIG_SUMMARY} to have acceptable boot time
+    \stopitemize
+  \item {\bf yaffs2}
+    \startitemize
+    \item Good performance, but not in mainline Linux
+    \stopitemize
+  \item {\bf ubifs}
+    \startitemize
+    \item Best solution and performance for medium and big
+      partitions
+    \item Too much metadata overhead small partitions (only case
+      when \type{yaffs2} and \type{jffs2} are still useful)
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Issues with flash-based block storage}
+  \startitemize
+  \item Flash storage made available only through a block interface.
+  \item Hence, no way to access a low level flash interface
+    and use the Linux filesystems doing wear leveling.
+  \item No details about the layer (Flash Translation Layer) they
+    use. Details are kept as trade secrets, and may hide poor
+    implementations.
+  \item Hence, it is highly recommended to limit the number of writes
+    to these devices.
+  \stopitemize
+
+  \SlideTitle{Reducing the number of writes}
+  \startitemize
+  \item Of course, do not use your flash storage as swap area (rare in
+    embedded systems anyway)
+  \item Mount your filesystems as read-only, or use read-only
+    filesystems (SquashFS), whenever possible.
+  \item Keep volatile files in RAM (tmpfs)
+  \item Don't use the \type{sync} mount option (commits writes
+    immediately). Use the \type{fsync()} system call for per-file
+    synchronization.
+  \item You may decide to do without journaled filesystems. They cause
+    more writes, but are also much more power down resistant
+    (trade-off).
+  \stopitemize
+
+  \SlideTitle{Useful reading}
+  \startitemize
+  \item Arnd Bergmann: Optimizing Linux with cheap flash drives\\
+    In depth coverage of flash storage with a block interface.\\
+    \hyphenatedurl{http://lwn.net/Articles/428584/}
+  \item Introduction to JFFS2 and LogFS:\\
+    \hyphenatedurl{http://lwn.net/Articles/234441/}
+  \item Nice UBI presentation from Toshiba:\\
+    \hyphenatedurl{http://free-electrons.com/redirect/celf-ubi.html}
+  \item Documentation on the linux-mtd website:\\
+    \hyphenatedurl{http://www.linux-mtd.infradead.org/}
+  \stopitemize
+

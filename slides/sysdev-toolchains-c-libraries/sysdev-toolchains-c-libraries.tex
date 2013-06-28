@@ -1,0 +1,105 @@
+  \SlideTitle{glibc}
+    \placefigure[right,none]{}{\externalfigure[slides/sysdev-toolchains-c-libraries/glibc.png][width=0.3\textwidth]}
+    \startitemize
+    \item License: LGPL
+    \item C library from the GNU project
+    \item Designed for performance, standards compliance and portability
+    \item Found on all GNU / Linux host systems
+    \item Of course, actively maintained
+    \item Quite big for small embedded systems: approx 2.5 MB on ARM
+      (version 2.9 - \type{libc}: 1.5 MB, \type{libm}: 750 KB)
+    \item \hyphenatedurl{http://www.gnu.org/software/libc/}
+    \stopitemize
+
+  \SlideTitle{uClibc}
+  \startitemize
+  \item License: LGPL
+  \item Lightweight C library for small embedded systems
+    \startitemize
+    \item High configurability: many features can be enabled or
+      disabled through a menuconfig interface
+    \item Works only with Linux/uClinux, works on most embedded
+      architectures
+    \item No stable ABI, different ABI depending on the library
+      configuration
+    \item Focus on size rather than performance
+    \item Small compile time
+    \stopitemize
+  \item \hyphenatedurl{http://www.uclibc.org/}
+  \stopitemize
+
+  \SlideTitle{uClibc (2)}
+  \startitemize
+  \item Most of the applications compile with uClibc. This applies to
+    all applications used in embedded systems.
+  \item Size (arm): 4 times smaller than glibc!
+    \startitemize
+    \item uClibc 0.9.30.1: approx. 600 KB (libuClibc: 460 KB, libm:
+      96KB)
+    \item glibc 2.9: approx 2.5 MB
+    \stopitemize
+  \item Some features not available or limited: priority-inheritance
+    mutexes, NPTL support is very new, fixed Name Service Switch
+    functionality, etc.
+  \item Used on a large number of production embedded products,
+    including consumer electronic devices
+  \item Actively maintained, large developer and user base
+  \item Supported and used by MontaVista, TimeSys and Wind River.
+\stopitemize
+
+  \SlideTitle{Honey, I shrunk the programs!}
+  \startitemize
+  \item Executable size comparison on ARM, tested with {\em glibc}
+    2.9 and {\em uClibc} 0.9.30.1
+  \item Plain ``hello world'' program (stripped)
+    \startitemize
+    \item With shared libraries: 5.6 KB with {\em glibc}, 5.4 KB with
+      {\em uClibc}
+    \item With static libraries: 472 KB with {\em glibc}, 18 KB with
+      {\em uClibc}
+    \stopitemize
+  \item Busybox (stripped)
+    \startitemize
+    \item With shared libraries: 245 KB with {\em glibc}, 231 KB with
+      {\em uClibc}
+    \item With static libraries: 843 KB with {\em glibc}, 311 KB with
+      {\em uClibc}
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{eglibc}
+    \placefigure[right,none]{}{\externalfigure[slides/sysdev-toolchains-c-libraries/eglibc.png][width=0.2\textwidth]}
+    \startitemize
+    \item {\em Embedded glibc}, under the LGPL
+    \item Variant of the GNU C Library (GLIBC) designed to work well on
+      embedded systems
+    \item Strives to be source and binary compatible with GLIBC
+    \item eglibc's goals include reduced footprint, configurable
+      components, better support for cross-compilation and
+      cross-testing.
+    \item Can be built without support for NIS, locales, IPv6, and many
+      other features.
+    \item Supported by a consortium, with Freescale, MIPS, MontaVista
+      and Wind River as members.
+    \item The Debian distribution has switched to eglibc too,
+      \hyphenatedurl{http://blog.aurel32.net/?p=47}
+    \item \hyphenatedurl{http://www.eglibc.org}
+    \stopitemize
+
+
+  \SlideTitle{Other smaller C libraries}
+  \startitemize
+  \item Several other smaller C libraries have been developed, but
+    none of them have the goal of allowing the compilation of large
+    existing applications
+  \item They need specially written programs and applications
+  \item Choices:
+    \startitemize
+    \item Dietlibc, \hyphenatedurl{http://www.fefe.de/dietlibc/}. Approximately
+      70 KB.
+    \item Newlib, \hyphenatedurl{http://sourceware.org/newlib/}
+    \item Klibc, \hyphenatedurl{http://www.kernel.org/pub/linux/libs/klibc/},
+      designed for use in an {\em initramfs} or {\em initrd} at boot
+      time.
+    \stopitemize
+  \stopitemize

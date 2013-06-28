@@ -1,0 +1,1360 @@
+  \SlideTitle{Contents}
+  \startitemize
+  \item Using open-source components
+  \item Tools for the target device
+    \startitemize
+    \item Networking
+    \item System utilities
+    \item Language interpreters
+    \item Audio, video and multimedia
+    \item Graphical toolkits
+    \item Databases
+    \item Web browsers
+    \stopitemize
+  \item System building
+  \item Commercial tool sets and distributions
+  \stopitemize
+
+  \SlideTitle{Third party libraries and applications}
+  \startitemize
+  \item One of the advantages of embedded Linux is the wide range of
+    third-party libraries and applications that one can leverage in
+    its product
+    \startitemize
+    \item They are freely available, freely distributable, and thanks
+      to their open-source nature, they can be analyzed and modified
+      according to the needs of the project
+    \stopitemize
+  \item However, efficiently re-using these components is not always
+    easy. One must:
+    \startitemize
+    \item Find these components
+    \item Choose the most appropriate ones
+    \item Cross-compile them
+    \item Integrate them in the embedded system and with the other
+      applications
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Find existing components}
+  \startitemize
+  \item Freecode, a website referencing most open-source projects\\
+    \hyphenatedurl{http://www.freecode.com}
+  \item Free Software Directory\\
+    \hyphenatedurl{http://directory.fsf.org}
+  \item Look at other embedded Linux products, and see what their
+    components are
+  \item Look at the list of software packaged by embedded Linux build
+    systems
+    \startitemize
+    \item These are typically chosen for their suitability to embedded
+      systems
+    \stopitemize
+  \item Ask the community or Google
+  \item This presentation will also feature a list of components for
+    common needs
+  \stopitemize
+
+  \SlideTitle{Choosing components}
+  \startitemize
+  \item Not all free software components are necessarily good to
+    re-use. One must pay attention to:
+    \startitemize
+    \item {\bf Vitality} of the developer and user communities. This
+      vitality ensures long-term maintenance of the component, and
+      relatively good support. It can be measured by looking at the
+      mailing-list traffic and the version control system activity.
+    \item {\bf Quality} of the component. Typically, if a component is
+      already available through embedded build systems, and has a
+      dynamic user community, it probably means that the quality is
+      relatively good.
+    \item {\bf License}. The license of the component must match your
+      licensing constraints. For example, GPL libraries cannot be used
+      in proprietary applications.
+    \item {\bf Technical requirements}. Of course, the component must
+      match your technical requirements. But don't forget that you can
+      improve the existing components if a feature is missing!
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Licenses (1)}
+  \startitemize
+  \item All software that are under a free software license give four
+    freedoms to all users
+    \startitemize
+    \item Freedom to use
+    \item Freedom to study
+    \item Freedom to copy
+    \item Freedom to modify and distribute modified copies
+    \stopitemize
+  \item See \hyphenatedurl{http://www.gnu.org/philosophy/free-sw.html} for a
+    definition of Free Software
+  \item Open Source software, as per the definition of the Open Source
+    Initiative, are technically similar to Free Software in terms of
+    freedoms
+  \item See \hyphenatedurl{http://www.opensource.org/docs/osd} for the definition of
+    Open Source Software
+  \stopitemize
+
+  \SlideTitle{Licenses (2)}
+  \startitemize
+  \item Free Software licenses fall in two main categories
+    \startitemize
+    \item The copyleft licenses
+    \item The non-copyleft licenses
+    \stopitemize
+  \item The concept of {\em copyleft} is to ask for reciprocity in the
+    freedoms given to a user.
+  \item The result is that when you receive a software under a
+    copyleft free software license and distribute modified versions of
+    it, you must do so under the same license
+    \startitemize
+    \item Same freedoms to the new users
+    \item It's an incentive to contribute back your changes instead of
+      keeping them secret
+    \stopitemize
+  \item Non-copyleft licenses have no such requirements, and modified
+    versions can be kept proprietary, but they still require
+    attribution
+  \stopitemize
+
+  \SlideTitle{GPL}
+  \startitemize
+  \item {\bf GNU General Public License}
+  \item Covers around 55\% of the free software projects
+    \startitemize
+    \item Including the Linux kernel, Busybox and many applications
+    \stopitemize
+  \item Is a copyleft license
+    \startitemize
+    \item Requires derivative works to be released under the same
+      license
+    \item Programs linked with a library released under the GPL must
+      also be released under the GPL
+    \stopitemize
+  \item Some programs covered by version 2 (Linux kernel, Busybox and
+    others)
+  \item More and more programs covered by version 3, released in 2007
+    \startitemize
+    \item Major change for the embedded market: the requirement that
+      the user must be able to {\bf run} the modified versions on the
+      device, if the device is a {\em consumer} device
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{GPL: redistribution}
+  \startitemize
+  \item No obligation when the software is not distributed
+    \startitemize
+    \item You can keep your modifications secret until the product
+      delivery
+    \stopitemize
+  \item It is then authorized to distribute binary versions, if one of
+    the following conditions is met:
+    \startitemize
+    \item Convey the binary with a copy of the source on a physical
+      medium
+    \item Convey the binary with a written offer valid for 3 years
+      that indicates how to fetch the source code
+    \item Convey the binary with the network address of a location
+      where the source code can be found
+    \item See section 6. of the GPL license
+    \stopitemize
+  \item In all cases, the attribution and the license must be
+    preserved
+    \startitemize
+    \item See section 4. and 5.
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{LGPL}
+  \startitemize
+  \item {\bf GNU Lesser General Public License}
+  \item Covers around 10\% of the free software projects
+  \item A copyleft license
+    \startitemize
+    \item Modified versions must be released under the same license
+    \item But, programs linked against a library under the LGPL do not
+      need to be released under the LGPL and can be kept proprietary
+    \item However, the user must keep the ability to update the
+      library independently from the program, so dynamic linking must
+      be used
+    \stopitemize
+  \item Used instead of the GPL for most of the libraries, including
+    the C libraries
+    \startitemize
+    \item Some exceptions: MySQL, or Qt = 4.4
+    \stopitemize
+  \item Also available in two versions, v2 and v3
+  \stopitemize
+
+  \SlideTitle{Licensing: examples}
+  \startitemize
+  \item You make modifications to the Linux kernel (to add drivers or
+    adapt to your board), to Busybox, U-Boot or other GPL software
+    \startitemize
+    \item You must release the modified versions under the same
+      license, and be ready to distribute the source code to your
+      customers
+    \stopitemize
+  \item You make modifications to the C library or any other LGPL
+    library
+    \startitemize
+    \item You must release the modified versions under the same
+      license
+    \stopitemize
+  \item You create an application that relies on LGPL libraries
+    \startitemize
+    \item You can keep your application proprietary, but you must link
+      dynamically with the LGPL libraries
+    \stopitemize
+  \item You make modifications to a non-copyleft licensed software
+    \startitemize
+    \item You can keep your modifications proprietary, but you must
+      still credit the authors
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Non-copyleft licenses}
+  \startitemize
+  \item A large family of non-copyleft licenses that are relatively
+    similar in their requirements
+  \item A few examples
+    \startitemize
+    \item Apache license (around 4\%)
+    \item BSD license (around 6\%)
+    \item MIT license (around 4\%)
+    \item X11 license
+    \item Artistic license (around 9 \%)
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{BSD license}
+  \starttyping
+Copyright (c) <year>, <copyright holder>
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
+* Neither the name of the <organization> nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+[...]
+\stoptyping
+
+  \SlideTitle{Is this free software?}
+  \startitemize
+  \item Most of the free software projects are covered by ~10
+    well-known licenses, so it is fairly easy for the majority of
+    project to get a good understanding of the license
+  \item Otherwise, read the license text
+  \item Check Free Software Foundation's opinion\\
+    \hyphenatedurl{http://www.fsf.org/licensing/licenses/}
+  \item Check Open Source Initiative's opinion\\
+    \hyphenatedurl{http://www.opensource.org/licenses}
+  \stopitemize
+
+  \SlideTitle{Respect free software licenses}
+  \startitemize
+  \item Free Software is not public domain software, the distributors
+    have obligations due to the licenses
+    \startitemize
+    \item {\bf Before} using a free software component, make sure the
+      license matches your project constraints
+    \item Make sure to keep a complete list of the free software
+      packages you use, the original version you used and to keep your
+      modifications and adaptations well-separated from the original
+      version
+    \item Conform to the license requirements before shipping the
+      product to the customers
+    \stopitemize
+  \item Free Software licenses have been enforced successfully in
+    courts
+    \startitemize
+    \item GPL-violations.org, \hyphenatedurl{http://www.gpl-violations.org}
+    \item Software Freedom Law Center, \hyphenatedurl{http://www.softwarefreedom.org/}
+    \stopitemize
+  \item Ask your legal department!
+  \stopitemize
+
+  \SlideTitle{Keeping changes separate (1)}
+  \startitemize
+  \item When integrating existing open-source components in your
+    project, it is sometimes needed to make modifications to them
+    \startitemize
+    \item Better integration, reduced footprint, bug fixes, new
+      features, etc.
+    \stopitemize
+  \item Instead of mixing these changes, it is much better to keep
+    them separate from the original component version
+    \startitemize
+    \item If the component needs to be upgraded, easier to know what
+      modifications were made to the component
+    \item If support from the community is requested, important to
+      know how different the component we're using is from the
+      upstream version
+    \item Makes contributing the changes back to the community
+      possible
+    \stopitemize
+  \item It is even better to keep the various changes made on a given
+    component separate
+    \startitemize
+    \item Easier to review and to update to newer versions
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Keeping changes separate (2)}
+  \startitemize
+  \item The simplest solution is to use Quilt
+    \startitemize
+    \item Quilt is a tool that allows to maintain a stack of patches
+      over source code
+    \item Makes it easy to add, remove modifications from a patch, to
+      add and remove patches from stack and to update them
+    \item The stack of patches can be integrated into your version
+      control system
+    \item \hyphenatedurl{https://savannah.nongnu.org/projects/quilt/}
+    \stopitemize
+  \item Another solution is to use a version control system
+    \startitemize
+    \item Import the original component version into your version
+      control system
+    \item Maintain your changes in a separate branch
+    \stopitemize
+  \stopitemize
+
+
+  \SlideTitle{ssh server and client: Dropbear}
+  \hyphenatedurl{http://matt.ucc.asn.au/dropbear/dropbear.html}
+  \startitemize
+  \item Very small memory footprint ssh server for embedded systems
+  \item Satisfies most needs. Both client and server!
+  \item Size: 110 KB, statically compiled with uClibc on i386.\\
+    (OpenSSH client and server: approx 1200 KB, dynamically compiled
+    with glibc on i386)
+  \item Useful to:
+    \startitemize
+    \item Get a remote console on the target device
+    \item Copy files to and from the target device (scp or rsync -e
+      ssh).
+    \stopitemize
+  \item An alternative to OpenSSH, used on desktop and server systems.
+  \stopitemize
+
+  \SlideTitle{Benefits of a web server interface}
+
+  Many network enabled devices can just have a network interface
+
+  \startitemize
+  \item Examples: modems / routers, IP cameras, printers...
+  \item No need to develop drivers and applications for computers
+    connected to the device. No need to support multiple operating
+    systems!
+  \item Just need to develop static or dynamic HTML pages (possibly
+    with powerful client-side JavaScript).\\
+    Easy way of providing access to device information and parameters.
+  \item Reduced hardware costs (no LCD, very little storage space
+    needed)
+  \stopitemize
+
+  \SlideTitle{Web servers}
+    \startitemize
+    \item {\em BusyBox http server}: \hyphenatedurl{http://busybox.net}
+      \startitemize
+      \item Tiny: only adds 9 K to BusyBox (dynamically linked with
+        glibc on i386, with all features enabled.)
+      \item Sufficient features for many devices with a web interface,
+        including CGI, http authentication and script support (like
+        PHP, with a separate interpreter).
+      \item License: GPL
+      \stopitemize
+    \item {\em lighttpd}: \hyphenatedurl{http://lighttpd.net}\\
+      Low footprint server good at managing high loads.\\
+      May be useful in embedded systems too
+    \item Other possibilities: {\em Boa}, {\em thttpd}, {\em nginx},
+      etc
+    \stopitemize
+
+  \SlideTitle{Network utilities (1)}
+  \startitemize
+  \item {\bf avahi} is an implementation of Multicast DNS Service
+    Discovery, that allows programs to publish and discover services
+    on a local network
+  \item {\bf bind}, a DNS server
+  \item {\bf iptables}, the userspace tools associated to the Linux firewall, Netfilter
+  \item {\bf iw and wireless tools}, the userspace tools associated to Wireless devices
+  \item {\bf netsnmp}, implementation of the SNMP protocol
+  \item {\bf openntpd}, implementation of the Network Time Protocol,
+    for clock synchronization
+  \item {\bf openssl}, a toolkit for SSL and TLS connections
+  \stopitemize
+
+  \SlideTitle{Network utilities (2)}
+  \startitemize
+  \item {\bf pppd}, implementation of the Point to Point Protocol,
+    used for dial-up connections
+  \item {\bf samba}, implements the SMB and CIFS protocols, used by
+    Windows to share files and printers
+  \item {\bf coherence}, a UPnP/DLNA implementation
+  \item {\bf vsftpd}, proftpd, FTP servers
+  \stopitemize
+
+  \SlideTitle{System utilities}
+  \startitemize
+  \item {\bf dbus}, an inter-application object-oriented communication bus
+  \item {\bf gpsd}, a daemon to interpret and share GPS data
+  \item {\bf libraw1394}, raw access to Firewire devices
+  \item {\bf libusb}, a userspace library for accessing USB devices
+    without writing an in-kernel driver
+  \item Utilities for kernel subsystems: {\bf i2c-tools} for I2C, {\bf
+      input-tools} for input, {\bf mtd-utils} for MTD devices, {\bf
+      usbutils} for USB devices
+  \stopitemize
+
+  \SlideTitle{Language interpreters}
+  \startitemize
+  \item Interpreters for the most common scripting languages are
+    available. Useful for
+    \startitemize
+    \item Application development
+    \item Web services development
+    \item Scripting
+    \stopitemize
+  \item Languages supported
+    \startitemize
+    \item Lua
+    \item Python
+    \item Perl
+    \item Ruby
+    \item TCL
+    \item PHP
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Audio, video and multimedia}
+  \startitemize
+  \item {\bf gstreamer}, a multimedia framework
+    \startitemize
+    \item Allows to decode/encode a wide variety of codecs.
+    \item Supports hardware encoders and decoders through plugins,
+      proprietary/specific plugins are often provider by SoC vendors.
+    \stopitemize
+  \item {\bf alsa-lib}, the userspace tools associated to the ALSA sound
+    kernel subsystem
+  \item Directly using encoding and decoding libraries, if you decide
+    not to use gstreamer:\\
+    libavcodec, libogg, libtheora, libvpx, flac, libvorbis, libmad,
+    libsndfile, speex, etc.
+  \stopitemize
+
+  \SlideTitle{DirectFB (1)}
+  \startitemize
+  \item Low-level graphical library
+    \startitemize
+    \item Lines, rectangles, triangles drawing and filling
+    \item Blitting, flipping
+    \item Text drawing
+    \item Windows and transparency
+    \item Image loading and video display
+    \stopitemize
+  \item But also handles input event handling: mouse, keyboard, joystick,
+    touchscreen, etc.
+  \item Provides accelerated graphic operations on a few hardware
+    platforms
+  \item Single-application by default, but multiple applications can
+    share the framebuffer thanks to {\em fusion}
+  \item License: LGPL 2.1
+  \item \hyphenatedurl{http://www.directfb.org}
+  \stopitemize
+
+  \IncludePicture[horizontal][slides/sysdev-embedded-linux/directfb-architecture.pdf]{DirectFB: architecture}
+
+  \SlideTitle{DirectFB: usage}
+  \startitemize
+  \item Multimedia applications
+    \startitemize
+    \item For example the Disko framework, for set-top box related
+      applications
+    \stopitemize
+  \item ``Simple'' graphical applications
+    \startitemize
+    \item Industrial control
+    \item Device control with limited number of widgets
+    \stopitemize
+  \item Visualization applications
+  \item As a lower layer for higher-level graphical libraries
+  \stopitemize
+
+  \SlideTitle{DirectFB: architecture}
+    \IncludePicture[horizontal][slides/sysdev-embedded-linux/directfb-morphine.png]{}
+
+  \SlideTitle{X.org - KDrive}
+    \startitemize
+    \item Stand-alone simplified version of the X server, for embedded
+      systems
+      \startitemize
+      \item Formerly know as Tiny-X
+      \item Kdrive is integrated in the official X.org server
+      \stopitemize
+    \item Works on top of the Linux frame buffer, thanks to the Xfbdev
+      variant of the server
+    \item Real X server
+      \startitemize
+      \item Fully supports the X11 protocol: drawing, input event
+        handling, etc.
+      \item Allows to use any existing X11 application or library
+      \stopitemize
+    \item Actively developed and maintained
+    \item X11 license
+    \item \hyphenatedurl{http://www.x.org}
+    \stopitemize
+
+  \IncludePicture[horizontal][slides/sysdev-embedded-linux/xorg-architecture.pdf]{Kdrive: architecture}
+
+  \SlideTitle{Kdrive: usage}
+  \startitemize
+  \item Can be directly programmed using Xlib / XCB
+    \startitemize
+    \item Low-level graphic library
+    \item Probably doesn't make sense since DirectFB is a more
+      lightweight solution for an API of roughly the same level (no
+      widgets)
+    \stopitemize
+  \item Or, usually used with a toolkit on top of it
+    \startitemize
+    \item Gtk
+    \item Qt
+    \item Fltk
+    \item WxEmbedded
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Gtk}
+    \startitemize
+    \item The famous toolkit, providing widget-based high-level APIs to
+      develop graphical applications
+    \item Standard API in C, but bindings exist for various languages:
+      C++, Python, etc.
+    \item Works on top of X.org.
+    \item No windowing system, a lightweight window manager needed to
+      run several applications. Possible solution: Matchbox.
+    \item License: LGPL
+    \item \hyphenatedurl{http://www.gtk.org}
+    \stopitemize
+
+  \SlideTitle{Gtk stack components}
+  \startitemize
+  \item {\bf Glib}, core infrastructure
+    \startitemize
+    \item Object-oriented infrastructure GObject
+    \item Event loop, threads, asynchronous queues, plug-ins, memory
+      allocation, I/O channels, string utilities, timers, date and
+      time, internationalization, simple XML parser, regular
+      expressions
+    \item Data types: memory slices and chunks, linked lists, arrays,
+      trees, hash tables, etc.
+    \stopitemize
+  \item {\bf Pango}, internationalization of text handling
+  \item {\bf ATK}, accessibility toolkit
+  \item {\bf Cairo}, vector graphics library
+  \item {\bf Gtk+}, the widget library itself
+  \item {\em The Gtk stack is a complete framework to develop applications}
+  \stopitemize
+
+  \SlideTitle{Qt (1)}
+  \startitemize
+  \item The other famous toolkit, providing widget-based high-level APIs to
+    develop graphical applications
+  \item Implemented in C++
+    \startitemize
+    \item the C++ library is required on the target system
+    \item standard API in C++, but with bindings for other languages
+    \stopitemize
+  \item Works either on top of
+    \startitemize
+    \item Framebuffer
+    \item X11
+    \item DirectFB back-end integrated in version 4.4, which allows to take
+      advantage of the acceleration provided by DirectFB drivers
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Qt (2)}
+  \startitemize
+  \item Qt is more than just a graphical toolkit, it also offers a
+    complete development framework: data structures, threads, network,
+    databases, XML, etc.
+  \item See our presentation {\em Qt for non graphical applications}
+    presentation at ELCE 2011 (Thomas Petazzoni):
+    \hyphenatedurl{http://j.mp/W4PK85}
+  \item Qt Embedded has an integrated windowing system, allowing
+    several applications to share the same screen
+  \item Very well documented
+  \item Since version 4.5, available under the LGPL, allowing
+    proprietary applications
+  \stopitemize
+
+  \SlideTitle{Other less frequent solutions}
+  \startitemize
+  \item Enlightenment foundation libraries
+    \startitemize
+    \item Very powerful, but complicated to use due to the lack of
+      documentation
+    \item \hyphenatedurl{http://www.enlightenment.org/p.php?p=about/efl}
+    \stopitemize
+  \stopitemize
+
+
+  \SlideTitle{Lightweight database - SQLite}
+  \hyphenatedurl{http://www.sqlite.org}
+
+  \startitemize
+  \item SQLite is a small C library that implements a self-contained,
+    embeddable, lightweight, zero-configuration SQL database engine
+  \item The database engine of choice for embedded Linux systems
+    \startitemize
+    \item Can be used as a normal library
+    \item Can be directly embedded into a application, even a
+      proprietary one since SQLite is released in the public domain
+    \stopitemize
+  \stopitemize
+
+
+  \SlideTitle{WebKit}
+    \hyphenatedurl{http://webkit.org/}
+    \startitemize
+    \item Web browser engine. Application framework that can be used
+      to develop web browsers.
+    \item License: portions in LGPL and others in BSD. Proprietary
+      applications allowed.
+    \item Used everywhere (MacOS X, iPhone, Google Android and
+      Chrome...). Many applications (browsers, e-mail clients...) are
+      already using WebKit:
+      \hyphenatedurl{http://trac.webkit.org/wiki/Applications using WebKit}
+    \item Multiple graphical back-ends: Qt4, GTK...
+    \item Lightweight web-browsers: Midori (GTK), Arora (Qt)
+    \item You could use it to create your custom browser.
+    \stopitemize
+
+  \SlideTitle{Industrial applications}
+  \startitemize
+  \item In many industrial applications, the system is only
+    responsible for monitoring and control a device
+  \item Such a system is usually relatively simple in terms of
+    components
+    \startitemize
+    \item Kernel
+    \item BusyBox
+    \item C library
+    \item Applications relying directly on the C library, sometimes
+      using the real-time capabilities of the Linux kernel
+    \item Sometimes a Web server for remote control, or another server
+      implementing a custom protocol
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Digital Photo Frame: requirements}
+  \startitemize
+  \item Example taken from a conference of Matt Porter, Embedded Alley
+    at ELC 2008
+  \item Hardware: ARM SoC with DSP, audio, 800x600 LCD, MMC/SD, NAND,
+    buttons, speakers
+  \item The photo frame must be able to
+    \startitemize
+    \item Display to the LCD
+    \item Detect SD card insertion, notify applications of the
+      insertion so that applications can build a catalog of the
+      pictures on the SD card
+    \item Modern 3D GUI with nice transitions
+    \item Navigation through buttons
+    \item Support audio playback (MP3, playlists, ID3 tag)
+    \item JPEG resizing and rotation
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Digital Photo Frame: components (1)}
+  \startitemize
+  \item Base system
+    \startitemize
+    \item Components present in virtually all embedded Linux systems
+    \item The U-Boot bootloader
+    \item Linux Kernel
+      \startitemize
+      \item Drivers for SD/MMC, framebuffer, sound, input devices
+      \stopitemize
+    \item Busybox
+    \item Build system, in this case was OpenEmbedded
+    \item Components: {\bf u-boot}, {\bf Linux}, {\bf busybox}
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Digital Photo Frame: components (2)}
+  \startitemize
+  \item Event handling to detect SD card insertion
+    \startitemize
+    \item \type{udev}, that receives events from the kernel, creates device
+      nodes, and sends events to \type{hal}
+    \item \type{hal}, which maintains a database of available devices and
+      provides a \type{dbus} API
+    \item \type{dbus} to connect \type{hal} with the application. The application
+      subscribes to \type{hal} event through \type{dbus} and gets notified when
+      they are triggered
+    \item Components: {\bf udev}, {\bf hal}, {\bf dbus}
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Digital Photo Frame: components (3)}
+  \startitemize
+  \item JPEG display
+    \startitemize
+    \item {\bf libjpeg} to decode the pictures
+    \item {\bf jpegtran} to resize and rotate them
+    \item {\bf FIM} (Fbi Improved) for dithering
+    \stopitemize
+  \item MP3 support
+    \startitemize
+    \item {\bf libmad} for playing
+    \item {\bf libid3} for ID3 tags reading
+    \item {\bf libm3u} to support playlists
+    \item Used vendor-provided components to leverage the DSP to play
+      MP3
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Digital Photo Frame: components (4)}
+  \startitemize
+  \item 3D interface
+    \startitemize
+    \item Vincent, an open-source implementation of OpenGL ES
+    \item Clutter, higher-level API to develop 3D applications
+    \stopitemize
+  \item Application itself
+    \startitemize
+    \item Manages media events
+    \item Uses the JPEG libraries to decode and render pictures
+    \item Receives Linux input events from buttons and draws
+      OpenGL-based UI developed with Clutter
+    \item Manage a user-defined configuration
+    \item Play the music with the MP3-related libraries
+    \item Display photo slideshow
+    \stopitemize
+  \stopitemize
+
+
+  \SlideTitle{System building: goal and solutions}
+  \startitemize
+  \item Goal
+    \startitemize
+    \item Integrate all the software components, both third-party and
+      in-house, into a working root filesystem
+    \item It involves the download, extraction, configuration,
+      compilation and installation of all components, and possibly
+      fixing issues and adapting configuration files
+    \stopitemize
+  \item Several solutions
+    \startitemize
+    \item Manually
+    \item System building tools
+    \item Distributions or ready-made filesystems
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{System building: manually}
+  \startitemize
+  \item Manually building a target system involves downloading,
+    configuring, compiling and installing all the components of the
+    system.
+  \item All the libraries and dependencies must be configured,
+    compiled and installed in the right order.
+  \item Sometimes, the build system used by libraries or applications
+    is not very cross-compile friendly, so some adaptations are
+    necessary.
+  \item There is no infrastructure to reproduce the build from
+    scratch, which might cause problems if one component needs to be
+    changed, if somebody else takes over the project, etc.
+  \stopitemize
+
+  \SlideTitle{System building: manually (2)}
+  \startitemize
+  \item Manual system building is not recommended for production
+    projects
+  \item However, using automated tools often requires the developer to
+    dig into specific issues
+  \item Having a basic understanding of how a system can be built
+    manually is therefore very useful to fix issues encountered with
+    automated tools
+    \startitemize
+    \item We will first study manual system building, and during a
+      practical lab, create a system using this method
+    \item Then, we will study the automated tools available, and use
+      one of them during a lab
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{System foundations}
+  \startitemize
+  \item A basic root file system needs at least
+    \startitemize
+    \item A traditional directory hierarchy, with \type{/bin},
+      \type{/etc}, \type{/lib}, \type{/root}, \type{/usr/bin},
+      \type{/usr/lib}, \type{/usr/share}, \type{/usr/sbin},
+      \type{/var}, \type{/sbin}
+    \item A set of basic utilities, providing at least the \type{init}
+      program, a shell and other traditional Unix command line
+      tools. This is usually provided by {\em Busybox}
+    \item The C library and the related libraries (thread, math, etc.)
+      installed in \type{/lib}
+    \item A few configuration files, such as \type{/etc/inittab}, and
+      initialization scripts in \type{/etc/init.d}
+    \stopitemize
+  \item On top of this foundation common to most embedded Linux
+    system, we can add third-party or in-house components
+  \stopitemize
+
+  \SlideTitle{Target and build spaces}
+  \startitemize
+  \item The system foundation, Busybox and C library, are the core of
+    the target root filesystem
+  \item However, when building other components, one must distinguish
+    two directories
+    \startitemize
+    \item The {\em target} space, which contains the target root
+      filesystem, everything that is needed for {\bf execution} of the
+      application
+    \item The {\em build} space, which will contain a lot more files
+      than the {\em target} space, since it is used to keep everything
+      needed to {\bf compile} libraries and applications. So we must
+      keep the headers, documentation, and other configuration files
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Build systems}
+  \startitemize
+  \item Each open-source component comes with a mechanism to
+    configure, compile and install it
+    \startitemize
+    \item A basic \type{Makefile}
+      \startitemize
+      \item Need to read the \type{Makefile} to understand how it
+        works and how to tweak it for cross-compilation
+      \stopitemize
+    \item A build system based on the {\em Autotools}
+      \startitemize
+      \item As this is the most common build system, we will study it
+        in details
+      \stopitemize
+    \item CMake, \hyphenatedurl{http://www.cmake.org/}
+      \startitemize
+      \item Newer and simpler than the {\em autotools}. Used by large
+        projects such as KDE or Second Life
+      \stopitemize
+    \item Scons, \hyphenatedurl{http://www.scons.org/}
+    \item Waf, \hyphenatedurl{http://code.google.com/p/waf/}
+    \item Other manual build systems
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Autotools and friends}
+  \startitemize
+  \item A family of tools, which associated together form a complete
+    and extensible build system
+    \startitemize
+    \item {\bf autoconf} is used to handle the configuration of the
+      software package
+    \item {\bf automake} is used to generate the Makefiles needed to
+      build the software package
+    \item {\bf pkgconfig} is used to ease compilation against already
+      installed shared libraries
+    \item {\bf libtool} is used to handle the generation of shared
+      libraries in a system-independent way
+    \stopitemize
+  \item Most of these tools are old and relatively complicated to use,
+    but they are used by a majority of free software packages
+    today. One must have a basic understanding of what they do and how
+    they work.
+  \stopitemize
+
+  \SlideTitle{automake / autoconf / autoheader}
+    \IncludePicture[horizontal][slides/sysdev-embedded-linux/autotools.pdf]{}
+
+  \SlideTitle{automake / autoconf}
+  \startitemize
+  \item Files written by the developer
+    \startitemize
+    \item \type{configure.in} describes the configuration options and
+      the checks done at configure time
+    \item \type{Makefile.am} describes how the software should be
+      built
+    \stopitemize
+  \item The \type{configure} script and the \type{Makefile.in} files
+    are generated by \type{autoconf} and \type{automake} respectively.
+    \startitemize
+    \item They should never modified directly
+    \item They are usually shipped pre-generated in the software
+      package, because there are several versions of \type{autoconf}
+      and \type{automake}, and they are not completely compatible
+    \stopitemize
+  \item The \type{Makefile} files are generated at configure time, before
+    compiling
+    \startitemize
+    \item They are never shipped in the software package.
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Configuring and compiling: native case}
+  \startitemize
+  \item The traditional steps to configure and compile an autotools
+    based package are
+    \startitemize
+    \item Configuration of the package\\
+      \type{./configure}
+    \item Compilation of the package\\
+      \type{make}
+    \item Installation of the package\\
+      \type{make install}
+    \stopitemize
+  \item Additional arguments can be passed to the \type{./configure}
+    script to adjust the component configuration.
+  \item Only the \type{make install} needs to be done as root if the
+    installation should take place system-wide
+  \stopitemize
+
+  \SlideTitle{Configuring and compiling: cross case (1)}
+  \startitemize
+  \item For cross-compilation, things are a little bit more complicated.
+  \item At least some of the environment variables \type{AR},
+    \type{AS}, \type{LD}, \type{NM}, \type{CC}, \type{GCC},
+    \type{CPP}, \type{CXX}, \type{STRIP}, \type{OBJCOPY} must be
+    defined to point to the proper cross-compilation tools. The host
+    tuple is also by default used as prefix.
+  \item The \type{--host} argument must be passed to the \type{configure} script.
+    \startitemize
+    \item \type{--build} argument is automatically detected
+    \item \type{--target} is only for tools generating code.
+    \stopitemize
+  \item It is recommended to pass the \type{--prefix} argument. It
+    defines from which location the software will run in the target
+    environment. Usually, \type{/usr} is fine.
+  \stopitemize
+
+  \SlideTitle{Configuring and compiling: cross case (2)}
+  \startitemize
+  \item If one simply runs \type{make install}, the software will be
+    installed in the directory passed as \type{--prefix}. For
+    cross-compiling, one must pass the \type{DESTDIR} argument to
+    specify where the software must be installed.
+  \item Making the distinction between the prefix (as passed with
+    \type{--prefix} at configure time) and the destination directory (as
+    passed with \type{DESTDIR} at installation time) is very important.
+  \item Example:
+\starttyping
+export PATH=/usr/local/arm-linux/bin:$PATH
+export CC=arm-linux-gcc
+export STRIP=arm-linux-strip
+./configure --host=arm-linux --prefix=/usr
+make
+make DESTDIR=$HOME/work/rootfs install
+\stoptyping
+  \stopitemize
+
+  \SlideTitle{Installation (1)}
+  \startitemize
+  \item The autotools based software packages provide both a
+    \type{install} and \type{install-strip} make targets, used to
+    install the software, either stripped or unstripped.
+  \item For applications, the software is usually installed in
+    \type{<prefix>/bin}, with configuration files in
+    \type{<prefix>/etc} and data in
+    \type{<prefix>/share/<application>/}
+  \item The case of libraries is a little more complicated:
+    \startitemize
+    \item In \type{<prefix>/lib}, the library itself (a
+      \type{.so.<version>}), a few symbolic links, and
+      the libtool description file (a \type{.la} file)
+    \item The {\em pkgconfig} description file in
+      \type{<prefix>/lib/pkgconfig}
+    \item Include files in \type{<prefix>/include/}
+    \item Sometimes a \type{<libname>-config} program in
+      \type{<prefix>/bin}
+    \item Documentation in \type{<prefix>/share/man} or
+      \type{<prefix>/share/doc/}
+    \stopitemize
+  \stopitemize
+
+\SlideTitle{Installation (2)}
+
+Contents of \type{usr/lib} after installation of {\em libpng} and {\em
+  zlib}
+
+\startitemize
+\item {\em libpng} libtool description files\\
+  \type{./lib/libpng12.la}\\
+  \type{./lib/libpng.la -> libpng12.la}
+\item {\em libpng} static version\\
+  \type{./lib/libpng12.a}\\
+  \type{./lib/libpng.a -> libpng12.a}
+\item {\em libpng} dynamic version\\
+  \type{./lib/libpng.so.3.32.0}\\
+  \type{./lib/libpng12.so.0.32.0}\\
+  \type{./lib/libpng12.so.0 -> libpng12.so.0.32.0}\\
+  \type{./lib/libpng12.so -> libpng12.so.0.32.0}\\
+  \type{./lib/libpng.so -> libpng12.so}\\
+  \type{./lib/libpng.so.3 -> libpng.so.3.32.0}
+\item {\em libpng} pkg-config description files\\
+  \type{./lib/pkgconfig/libpng12.pc}\\
+  \type{./lib/pkgconfig/libpng.pc -> libpng12.pc}
+\item {\em zlib} dynamic version\\
+  \type{./lib/libz.so.1.2.3}\\
+  \type{./lib/libz.so -> libz.so.1.2.3}\\
+  \type{./lib/libz.so.1 -> libz.so.1.2.3}
+\stopitemize
+
+  \SlideTitle{Installation in the build and target spaces}
+  \startitemize
+  \item From all these files, everything except documentation is
+    necessary to build an application that relies on libpng.
+    \startitemize
+    \item These files will go into the {\em build space}
+    \stopitemize
+  \item However, only the library \type{.so} binaries in
+    \type{<prefix>/lib} and some symbolic links are needed to execute
+    the application on the target.
+    \startitemize
+    \item Only these files will go in the {\em target space}
+    \stopitemize
+  \item The build space must be kept in order to build other
+    applications or recompile existing applications.
+  \stopitemize
+
+  \SlideTitle{pkg-config}
+  \startitemize
+  \item \type{pkg-config} is a tool that allows to query a small
+    database to get information on how to compile programs that depend
+    on libraries
+  \item The database is made of \type{.pc} files, installed by default in
+    \type{<prefix>/lib/pkgconfig/}.
+  \item \type{pkg-config} is used by the \type{configure} script to get the
+    library configurations
+  \item It can also be used manually to compile an application:\\
+    \type{arm-linux-gcc -o test test.c $(pkg-config --libs --cflags thelib)}
+  \item By default, pkg-config looks in \type{/usr/lib/pkgconfig} for
+    the \type{*.pc} files, and assumes that the paths in these files
+    are correct.
+  \item \type{PKG_CONFIG_PATH} allows to set another location for the
+    \type{*.pc} files and \type{PKG_CONFIG_SYSROOT_DIR} to prepend a
+    prefix to the paths mentioned in the \type{.pc} files.
+  \stopitemize
+
+  \SlideTitle{Let's find the libraries}
+  \startitemize
+  \item When compiling an application or a library that relies on
+    other libraries, the build process by default looks in
+    \type{/usr/lib} for libraries and \type{/usr/include} for headers.
+  \item The first thing to do is to set the \type{CFLAGS} and
+    \type{LDFLAGS} environment
+    variables:\\
+    \type{export CFLAGS=-I/my/build/space/usr/include/}\\
+    \type{export LDFLAGS=-L/my/build/space/usr/lib}
+  \item The libtool files (\type{.la} files) must be modified because they
+    include the absolute paths of the libraries:\\
+    \type{- libdir='/usr/lib'}\\
+    \type{+ libdir='/my/build/space/usr/lib}'
+  \item The \type{PKG_CONFIG_PATH} environment variable must be set to
+    the location of the .pc files and the
+    \type{PKG_CONFIG_SYSROOT_DIR} variable must be set to the build
+    space directory.
+\stopitemize
+
+  \SlideTitle{System building tools: principle}
+  \startitemize
+  \item Different tools are available to automate the process of
+    building a target system, including the kernel, and sometimes the
+    toolchain.
+  \item They automatically download, configure, compile and install
+    all the components in the right order, sometimes after applying
+    patches to fix cross-compiling issues.
+  \item They already contain a large number of packages, that should
+    fit your main requirements, and are easily extensible.
+  \item The build becomes reproducible, which allows to easily change
+    the configuration of some components, upgrade them, fix bugs, etc.
+  \stopitemize
+
+  \SlideTitle{Available system building tools} Large choice of tools
+  \small
+  \startitemize
+  \item {\bf Buildroot}, developed by the community\\
+    \hyphenatedurl{http://www.buildroot.net}
+  \item {\bf PTXdist}, developed by Pengutronix\\
+    \hyphenatedurl{http://www.pengutronix.de/software/ptxdist/index_en.html}
+  \item {\bf OpenWRT}, originally a fork of Buildroot for wireless routers,
+    now a more generic project\\
+    \hyphenatedurl{http://www.openwrt.org}
+  \item {\bf LTIB}. Good support for Freescale boards, but small community\\
+    \hyphenatedurl{http://ltib.org/}
+  \item {\bf OpenEmbedded}, more flexible but also far more complicated\\
+    \hyphenatedurl{http://www.openembedded.org}, its industrialized version {\bf
+      Yocto} and vendor-specific derivatives such as {\bf Arago}
+  \item Vendor specific tools (silicon vendor or embedded Linux
+    vendor)
+  \stopitemize
+
+  \SlideTitle{Buildroot (1)}
+  \startitemize
+  \item Allows to build a toolchain, a root filesystem image with many
+    applications and libraries, a bootloader and a kernel image
+    \startitemize
+    \item Or any combination of the previous items
+    \stopitemize
+  \item Supports building uClibc toolchains only, but can use external
+    uClibc or glibc toolchains
+  \item Over 700+ applications or libraries integrated, from basic
+    utilities to more elaborate software stacks: X.org, Gstreamer, Qt,
+    Gtk, WebKit, etc.
+  \item Good for small to medium embedded systems, with a fixed set of
+    features
+    \startitemize
+    \item No support for generating packages (\type{.deb} or \type{.ipk})
+    \item Needs complete rebuild for most configuration changes.
+    \stopitemize
+  \item Active community, releases published every 3 months.
+  \stopitemize
+
+  \SlideTitle{Buildroot (2)}
+    \placefigure[right,none]{}{\externalfigure[slides/sysdev-embedded-linux/buildroot-screenshot.png][width=0.4\textwidth]}
+    \startitemize
+    \item Configuration takes place through a \type{*config} interface similar to the
+      kernel\\
+      \type{make menuconfig}
+    \item Allows to define
+      \startitemize
+      \item Architecture and specific CPU
+      \item Toolchain configuration
+      \item Set of applications and libraries to integrate
+      \item Filesystem images to generate
+      \item Kernel and bootloader configuration
+      \stopitemize
+    \item Build by just running\\
+      \type{make}
+    \stopitemize
+
+  \SlideTitle{Buildroot: adding a new package (1)}
+  \startitemize
+  \item A package allows to integrate a user application or library to
+    Buildroot
+  \item Each package has its own directory (such as
+    \type{package/gqview}). This directory contains:
+    \startitemize
+    \item A \type{Config.in} file (mandatory), describing the
+      configuration options for the package. At least one is needed to
+      enable the package. This file must be sourced from
+      \type{package/Config.in}
+    \item A \type{gqview.mk} file (mandatory), describing how the
+      package is built.
+    \item Patches (optional). Each file of the form
+      \type{gqview-*.patch} will be applied as a patch.
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Buildroot: adding a new package (2)}
+  \startitemize
+  \item For a simple package with a single configuration option to
+    enable/disable it, the \type{Config.in} file looks like:
+\starttyping
+config BR2_PACKAGE_GQVIEW
+        bool "gqview"
+        depends on BR2_PACKAGE_LIBGTK2
+        help
+          GQview is an image viewer for Unix operating systems
+
+          http://prdownloads.sourceforge.net/gqview
+\stoptyping
+  \item It must be sourced from \type{package/Config.in}:
+\starttyping
+source "package/gqview/Config.in"
+\stoptyping
+  \stopitemize
+
+  \SlideTitle{Buildroot: adding new package (3)}
+  \startitemize
+  \item Create the \type{gqview.mk} file to describe the build steps
+\starttyping
+GQVIEW_VERSION = 2.1.5
+GQVIEW_SOURCE = gqview-$(GQVIEW_VERSION).tar.gz
+GQVIEW_SITE = http://prdownloads.sourceforge.net/gqview
+GQVIEW_DEPENDENCIES = host-pkgconf libgtk2
+GQVIEW_CONF_ENV = LIBS="-lm"
+
+$(eval $(autotools-package))
+\stoptyping
+
+\item The package directory and the prefix of all variables must be
+  identical to the suffix of the main configuration option
+  \type{BR2_PACKAGE_GQVIEW}
+\item The \type{autotools-package} infrastructure knows how to build
+  autotools packages. A more generic \type{generic-package}
+  infrastructure is available for packages not using the autotools
+  as their build system.
+\stopitemize
+
+  \SlideTitle{OpenEmbedded / Yocto}
+  \startitemize
+  \item The most versatile and powerful embedded Linux build system
+    \startitemize
+    \item A collection of recipes (\type{.bb} files)
+    \item A tool that processes the recipes: \type{bitbake}
+    \stopitemize
+  \item Integrates 2000+ application and libraries, is highly
+    configurable, can generate binary packages to make the system
+    customizable, supports multiple versions/variants of the same
+    package, no need for full rebuild when the configuration is
+    changed.
+  \item Configuration takes place by editing various configuration
+    files
+  \item Good for larger embedded Linux systems, or people looking for
+    more configurability and extensibility
+  \item Drawbacks: very steep learning curve, very long first build.
+  \stopitemize
+
+  \SlideTitle{Distributions - Debian}
+    Debian GNU/Linux, \hyphenatedurl{http://www.debian.org}
+    \startitemize
+    \item Available on ARM, MIPS and PowerPC architectures
+    \item Provides a ready-to-use filesystem with all the software you
+      need.
+    \item Huge flexibility thanks to the package management system,
+      but only works only systems with enough storage size
+      (300 MB) and RAM (64 MB).
+    \item Software is compiled natively by default.
+    \item You can build your own root filesystem images on x86 by
+      using the \type{debootstrap} command.
+    \item Emdebian is a project to make Debian better for embedded
+      systems: leverage Debian package descriptions, but reduces
+      dependencies, smaller configuration, removes documentation,
+      supports uClibc... See \hyphenatedurl{http://emdebian.org}.
+    \stopitemize
+
+  \SlideTitle{Distributions - Ubuntu}
+    Ubuntu GNU/Linux
+    \startitemize
+    \item \hyphenatedurl{https://wiki.ubuntu.com/ARM}
+    \item Based on Debian, same benefits
+    \item New release every 6 months. Same release schedule as for
+      x86.
+    \item Supported on ARM, but only on Cortex A8 and beyond.
+      Supplies Thumb2 binaries. Neon not supported.
+    \item Good solution for mobile multimedia devices. Getting ready
+      for ARM servers too.
+    \item Training participants - try Ubuntu on your IGEPv2 board:\\
+      Run the \type{linaro-media-create} utility with images found on
+      \hyphenatedurl{http://releases.linaro.org/12.03/ubuntu/oneiric-images/ubuntu-desktop/}
+    \stopitemize
+
+
+  \SlideTitle{Distributions - Others}
+    Fedora
+    \startitemize
+    \item \hyphenatedurl{http://fedoraproject.org/wiki/Architectures/ARM}
+    \item Also has some support for ARM, but ARM releases get much less
+      attention and are currently made more than one year later.
+    \item Expect Fedora to be back in the next years, to meet demand for
+      ARM servers.
+    \stopitemize
+
+  \SlideTitle{Embedded distributions}
+    Distributions designed for specific types of devices
+    \startitemize
+    \item {\bf Meego}: \hyphenatedurl{http://meego.com/}\\
+      Distribution targeting phones, media players, netbooks, TVs and
+      In Vehicle Infotainment.\\
+      Dropped by Nokia and Intel, and will be replaced by Tizen, a new
+      project (\hyphenatedurl{https://www.tizen.org/}).
+    \item {\bf Android}: \hyphenatedurl{http://www.android.com/}\\
+      Google's distribution for phones and tablet PCs.\\
+      Except the Linux kernel, very different userspace
+      than other Linux distributions. Very successful,
+      lots of applications available (many proprietary).
+    \item {\bf Ångström}: \hyphenatedurl{http://www.angstrom-distribution.org/}\\
+      Targets PDAs and webpads (Siemens Simpad...)\\
+      Binaries available for arm little endian.
+    \stopitemize
+
+  \SlideTitle{System emulator: QEMU}
+  \hyphenatedurl{http://qemu.org}\\
+  Fast processor emulator
+  \startitemize
+  \item Useful to develop root filesystems and applications when the
+    hardware is not available yet (binary compatible development
+    boards are also possible).
+  \item Emulates the processor and various peripherals (“System
+    emulation): x86, ppc, arm, sparc, mips, m68k...
+  \item Many different ARM boards supported:\\
+    \type{qemu-system-arm -M ?}
+  \item QEMU also allows to just run binaries for other architectures
+    (``User emulation''). Used inside some building tools.
+  \stopitemize
+
+  \SlideTitle{Commercial embedded Linux solutions}
+  Caution: {\em commercial} doesn't mean {\em proprietary!}
+  \startitemize
+  \item Vendors play fair with the GPL and do make their source code
+    available to their users, and most of the time, eventually to the
+    community.
+    \startitemize
+    \item As long as they distribute the sources to their users, the
+      GPL doesn't require vendors to share their sources with any
+      third party.
+    \stopitemize
+  \item Graphical toolkits developed by the vendors are usually
+    proprietary, trying to make it easier to create and embedded Linux
+    systems.
+  \item Major players: Wind River, Montavista, TimeSys
+  \stopitemize
+
+  \SlideTitle{Commercial solution strengths}
+    \startitemize
+    \item Technical advantages
+      \startitemize
+      \item Well tested and supported kernel and tool versions
+      \item Often supporting patches not supported by the
+        mainline kernel yet (example: real-time patches)
+      \stopitemize
+    \item Complete development tool sets: kernels, toolchains,
+      utilities, binaries for impressive lists of target platforms
+    \item Integrated utilities for automatic kernel image, initramfs
+      and filesystem generation.
+    \stopitemize
+    \startitemize
+    \item Graphical developments tools
+    \item Development tools available on multiple platforms: GNU /
+      Linux, Solaris, Windows...
+    \item Support services
+      \startitemize
+      \item Useful if you don't have your own support resources
+      \item Long term support commitment, even for versions considered
+        as obsolete by the community, but not by your users!
+      \stopitemize
+    \stopitemize
+
+  \SlideTitle{Commercial or community solutions?}
+  {\bf Commercial distributions and tool sets}
+  \startitemize
+  \item Best if you don't have your own support resources and have a
+    sufficient budget
+  \item Help focusing on your primary job: making an embedded device.
+  \item You can even subcontract driver development to the vendor
+  \stopitemize
+  {\bf Community distributions and tools}
+  \startitemize
+  \item Best if you are on a tight budget
+  \item Best if you are willing to build your own embedded Linux
+    expertise, investigate issues by yourselves, and train your own
+    support resources.
+  \stopitemize
+  In any case, your products are based on Free Software!

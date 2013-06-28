@@ -1,0 +1,226 @@
+
+  \SlideTitle{Filesystems}
+  \startitemize
+  \item Filesystems are used to organize data in directories and files
+    on storage devices or on the network. The directories and files
+    are organized as a hierarchy
+  \item In Unix systems, applications and users see a {\bf single
+      global hierarchy} of files and directories, which can be
+    composed of several filesystems.
+  \item Filesystems are {\bf mounted} in a specific location in this
+    hierarchy of directories
+    \startitemize
+    \item When a filesystem is mounted in a directory (called {\em
+        mount point}), the contents of this directory reflects the
+      contents of the storage device
+    \item When the filesystem is unmounted, the {\em mount point} is
+      empty again.
+    \stopitemize
+  \item This allows applications to access files and directories easily,
+    regardless of their exact storage location
+  \stopitemize
+
+  \SlideTitle{Filesystems (2)}
+  \startitemize
+  \item Create a mount point, which is just a directory\\
+    \type{$ mkdir /mnt/usbkey}
+  \item It is empty\\
+    \type{$ ls /mnt/usbkey}\\
+    \type{$}
+  \item Mount a storage device in this mount point\\
+    \type{$ mount -t vfat /dev/sda1 /mnt/usbkey}\\
+    \type{$}
+  \item You can access the contents of the USB key\\
+    \type{$ ls /mnt/usbkey}\\
+    \type{docs prog.c picture.png movie.avi}\\
+    \type{$}
+  \stopitemize
+
+  \SlideTitle{mount / umount}
+  \startitemize
+  \item \type{mount} allows to mount filesystems
+    \startitemize
+    \item \type{mount -t type device mountpoint}
+    \item \type{type} is the type of filesystem
+    \item \type{device} is the storage device, or network location to
+      mount
+    \item \type{mountpoint} is the directory where files of the
+      storage device or network location will be accessible
+    \item \type{mount} with no arguments shows the currently mounted
+      filesystems
+    \stopitemize
+  \item \type{umount} allows to unmount filesystems
+    \startitemize
+    \item This is needed before rebooting, or before unplugging a USB
+      key, because the Linux kernel caches writes in memory to
+      increase performance. \type{umount} makes sure that those writes are
+      committed to the storage.
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Root filesystem}
+  \startitemize
+  \item A particular filesystem is mounted at the root of the hierarchy,
+    identified by \type{/}
+  \item This filesystem is called the {\bf root filesystem}
+  \item As \type{mount} and \type{umount} are programs, they are files
+    inside a filesystem.
+    \startitemize
+    \item They are not accessible before mounting at least one filesystem.
+    \stopitemize
+  \item As the root filesystem is the first mounted filesystem, it
+    cannot be mounted with the normal \type{mount} command
+  \item It is mounted directly by the kernel, according to the
+    \type{root=} kernel option
+  \item When no root filesystem is available, the kernel panics\\
+\starttyping
+Please append a correct "root=" boot option
+Kernel panic - not syncing: VFS: Unable to mount root fs on unknown block(0,0)
+\stoptyping
+  \stopitemize
+
+  \SlideTitle{Location of the root filesystem}
+  \startitemize
+  \item It can be mounted from different locations
+    \startitemize
+    \item From the partition of a hard disk
+    \item From the partition of a USB key
+    \item From the partition of an SD card
+    \item From the partition of a NAND flash chip or similar type of
+      storage device
+    \item From the network, using the NFS protocol
+    \item From memory, using a pre-loaded filesystem (by the
+      bootloader)
+    \item etc.
+    \stopitemize
+  \item It is up to the system designer to choose the configuration
+    for the system, and configure the kernel behaviour with
+    \type{root=}
+  \stopitemize
+
+  \SlideTitle{Mounting rootfs from storage devices}
+  \startitemize
+  \item Partitions of a hard disk or USB key
+    \startitemize
+    \item \type{root=/dev/sdXY}, where \type{X} is a letter indicating
+      the device, and \type{Y} a number indicating the partition
+    \item \type{/dev/sdb2} is the second partition of the second disk
+      drive (either USB key or ATA hard drive)
+    \stopitemize
+  \item Partitions of an SD card
+    \startitemize
+    \item \type{root=/dev/mmcblkXpY}, where \type{X} is a number
+      indicating the device and \type{Y} a number indicating the
+      partition
+    \item \type{/dev/mmcblk0p2} is the second partition of the first
+      device
+    \stopitemize
+  \item Partitions of flash storage
+    \startitemize
+    \item \type{root=/dev/mtdblockX}, where \type{X} is the partition number
+    \item \type{/dev/mtdblock3} is the fourth partition of a NAND
+      flash chip (if only one NAND flash chip is present)
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Mounting rootfs over the network (1)}
+
+  Once networking works, your root filesystem could be a directory on
+  your GNU/Linux development host, exported by NFS (Network File
+  System). This is very convenient for system development:
+
+  \startitemize
+  \item Makes it very easy to update files on the root filesystem,
+    without rebooting. Much faster than through the serial port.
+  \item Can have a big root filesystem even if you don't have support
+    for internal or external storage yet.
+  \item The root filesystem can be huge. You can even build native
+    compiler tools and build all the tools you need on the target
+    itself (better to cross-compile though).
+  \stopitemize
+
+    \IncludePicture[horizontal][slides/sysdev-root-filesystem-principles/nfs-principle.pdf]{}
+
+  \SlideTitle{Mounting rootfs over the network (2)}
+
+  On the development workstation side, a NFS server is needed
+
+  \startitemize
+  \item Install an NFS server (example: Debian, Ubuntu)\\
+    \type{sudo apt-get install nfs-kernel-server}
+  \item Add the exported directory to your \type{/etc/exports} file:\\
+    \type{/home/tux/rootfs 192.168.1.111(rw,no_root_squash,no_subtree_check)}
+    \startitemize
+    \item \type{192.168.1.111} is the client IP address
+    \item \type{rw,no_root_squash,no_subtree_check} are the NFS server
+      options for this directory export.
+    \stopitemize
+  \item Start or restart your NFS server (example: Debian, Ubuntu)\\
+    \type{sudo /etc/init.d/nfs-kernel-server restart}
+  \stopitemize
+
+  \SlideTitle{Mounting rootfs over the network (3)}
+  \startitemize
+  \item On the target system
+  \item The kernel must be compiled with
+    \startitemize
+    \item \type{CONFIG_NFS_FS=y} (NFS support)
+    \item \type{CONFIG_IP_PNP=y} (configure IP at boot time)
+    \item \type{CONFIG_ROOT_NFS=y} (support for NFS as rootfs)
+    \stopitemize
+  \item The kernel must be booted with the following parameters:
+    \startitemize
+    \item \type{root=/dev/nfs} (we want rootfs over NFS)
+    \item \type{ip=192.168.1.111} (target IP address)
+    \item \type{nfsroot=192.168.1.110:/home/tux/rootfs/} (NFS server details)
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Mounting rootfs over the network (4)}
+    \IncludePicture[horizontal][slides/sysdev-root-filesystem-principles/nfs-principle-with-details.pdf]{}
+
+  \SlideTitle{rootfs in memory: initramfs (1)}
+  \startitemize
+  \item It is also possible to have the root filesystem integrated
+    into the kernel image
+  \item It is therefore loaded into memory together with the kernel
+  \item This mechanism is called {\bf initramfs}
+    \startitemize
+    \item It integrates a compressed archive of the filesystem into
+      the kernel image
+    \stopitemize
+  \item It is useful for two cases
+    \startitemize
+    \item Fast booting of very small root filesystems. As the
+      filesystem is completely loaded at boot time, application
+      startup is very fast.
+    \item As an intermediate step before switching to a real root
+      filesystem, located on devices for which drivers not part of the
+      kernel image are needed (storage drivers, filesystem drivers,
+      network drivers). This is always used on the kernel of
+      desktop/server distributions to keep the kernel image size
+      reasonable.
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{rootfs in memory: initramfs (2)}
+    \IncludePicture[horizontal][slides/sysdev-root-filesystem-principles/initramfs.pdf]{}
+
+  \SlideTitle{rootfs in memory: initramfs (3)}
+  \startitemize
+  \item The contents of an initramfs are defined at the kernel
+    configuration level, with the \type{CONFIG_INITRAMFS_SOURCE}
+    option
+    \startitemize
+    \item Can be the path to a directory containing the root
+      filesystem contents
+    \item Can be the path to a cpio archive
+    \item Can be a text file describing the contents of the initramfs
+      (see documentation for details)
+    \stopitemize
+  \item The kernel build process will automatically take the contents
+    of the \type{CONFIG_INITRAMFS_SOURCE} option and integrate the
+    root filesystem into the kernel image
+  \item \hyphenatedurl{filesystems/ramfs-rootfs-initramfs.txt}\\
+    \hyphenatedurl{early-userspace/README}
+  \stopitemize

@@ -1,0 +1,63 @@
+
+  \SlideTitle{Root filesystem organization}
+  \startitemize
+  \item The organization of a Linux root filesystem in terms of
+    directories is well-defined by the {\bf Filesystem Hierarchy
+      Standard}
+  \item \hyphenatedurl{http://www.linuxfoundation.org/collaborate/workgroups/lsb/fhs}
+  \item Most Linux systems conform to this specification
+    \startitemize
+    \item Applications expect this organization
+    \item It makes it easier for developers and users as the
+      filesystem organization is similar in all systems
+    \stopitemize
+  \stopitemize
+
+  \SlideTitle{Important directories (1)}
+  \startitemize
+  \item{\bf/bin} Basic programs
+  \item{\bf/boot} Kernel image (only when the kernel is loaded from a
+    filesystem, not common on non-x86 architectures)
+  \item{\bf/dev} Device files (covered later)
+  \item{\bf/etc} System-wide configuration
+  \item{\bf/home} Directory for the users home directories
+  \item{\bf/lib} Basic libraries
+  \item{\bf/media} Mount points for removable media
+  \item{\bf/mnt} Mount points for static media
+  \item{\bf/proc} Mount point for the proc virtual filesystem
+  \stopitemize
+
+  \SlideTitle{Important directories (2)}
+  \startitemize
+  \item{\bf/root}Home directory of the \type{root} user
+  \item{\bf/sbin}Basic system programs
+  \item{\bf/sys}Mount point of the sysfs virtual filesystem
+  \item{\bf/tmp}Temporary files
+  \item{\bf/usr}
+    \startitemize
+    \item{\bf/usr/bin}Non-basic programs
+    \item{\bf/usr/lib}Non-basic libraries
+    \item{\bf/usr/sbin}Non-basic system programs
+    \stopitemize
+  \item{\bf/var} Variable data files. This includes spool directories and
+    files, administrative and logging data, and transient and
+    temporary files
+  \stopitemize
+
+  \SlideTitle{Separation of programs and libraries}
+  \startitemize
+  \item Basic programs are installed in \type{/bin} and \type{/sbin}
+    and basic libraries in \type{/lib}
+  \item All other programs are installed in \type{/usr/bin} and
+    \type{/usr/sbin} and all other libraries in \type{/usr/lib}
+  \item In the past, on Unix systems, \type{/usr} was very often
+    mounted over the network, through NFS
+  \item In order to allow the system to boot when the network was
+    down, some binaries and libraries are stored in \type{/bin},
+    \type{/sbin} and \type{/lib}
+  \item \type{/bin} and \type{/sbin} contain programs like \type{ls},
+    \type{ifconfig}, \type{cp}, \type{bash}, etc.
+  \item \type{/lib} contains the C library and sometimes a few other
+    basic libraries
+  \item All other programs and libraries are in \type{/usr}
+  \stopitemize
