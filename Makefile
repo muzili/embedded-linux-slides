@@ -36,6 +36,7 @@ SLIDES = \
 	sysdev-root-filesystem-virtual-fs	\
 	sysdev-root-filesystem-minimal		\
 	sysdev-busybox 			\
+	sysdev-udev 			\
 	sysdev-block-filesystems 	\
 	sysdev-flash-filesystems 	\
 	sysdev-embedded-linux 		\
