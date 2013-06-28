@@ -2,6 +2,29 @@
 
 \setupexternalfigures[directory={./common}]
 
+% 封面
+\startuseMPgraphic{coverbg}
+StartPage ;
+color ccc ;
+pair p, h[], v[] ;
+hdelta := .20MakeupWidth ; vdelta := .20MakeupHeight ;
+u := PaperWidth ; v := PaperHeight ;
+drawoptions (withpen pencircle scaled 2pt) ;
+for i :=1 upto 48 :
+    ccc := (uniformdeviate (1), uniformdeviate (1), uniformdeviate (1)) ;
+    p := (uniformdeviate (u), uniformdeviate (v)) ;
+    h0 := (xpart (p) - uniformdeviate (hdelta) , ypart (p)) ;
+    h1 := (xpart (p) + uniformdeviate (hdelta) , ypart (p)) ;
+    v0 := (xpart (p), ypart (p) - uniformdeviate (vdelta)) ;
+    v1 := (xpart (p), ypart (p) + uniformdeviate (vdelta)) ;
+    draw h0 -- h1 withcolor transparent(1,.3,ccc) ;
+    draw v0 -- v1 withcolor transparent(1,.3,ccc) ;
+endfor ;
+StopPage ;
+\stopuseMPgraphic
+
+\defineoverlay[coverbg][\useMPgraphic{coverbg}]
+
 % \setuplayout [width=fit,
 %               margin=0cm,
 %               height=fit,

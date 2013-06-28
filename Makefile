@@ -17,19 +17,23 @@ SLIDES = \
         about-us 	\
 	sysdev-intro	\
 	sysdev-dev-environment		\
+	sysdev-toolchains-title		\
 	sysdev-toolchains-definition	\
 	sysdev-toolchains-c-libraries	\
 	sysdev-toolchains-options	\
 	sysdev-toolchains-obtaining	\
+	sysdev-bootloaders-title	\
 	sysdev-bootloaders-sequence	\
 	sysdev-bootloaders-u-boot	\
+	sysdev-linux-intro-title	\
 	sysdev-linux-intro-features	\
 	sysdev-linux-intro-versioning	\
 	sysdev-linux-intro-sources	\
 	sysdev-linux-intro-configuration\
 	sysdev-linux-intro-compilation	\
 	sysdev-linux-intro-cross-compilation	\
-	sysdev-linux-intro-modules	\
+	sysdev-linux-intro-modules		\
+	sysdev-root-filesystem-title		\
 	sysdev-root-filesystem-principles	\
 	sysdev-root-filesystem-contents 	\
 	sysdev-root-filesystem-device-files	\
